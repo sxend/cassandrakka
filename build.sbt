@@ -1,3 +1,5 @@
+import bintray.Keys._
+
 organization := "arimitsu.sf"
 
 name := "cassandrakka"
