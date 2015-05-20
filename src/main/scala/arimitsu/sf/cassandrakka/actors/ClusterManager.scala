@@ -21,6 +21,7 @@ class ClusterManager(components: {
 
 object ClusterManager {
   object Protocol {
+    case object GetSession
     case class AddNode(remote: InetSocketAddress)
   }
 }

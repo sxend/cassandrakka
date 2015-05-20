@@ -1,12 +1,17 @@
 package arimitsu.sf.cassandrakka
 
 import akka.actor._
+import arimitsu.sf.cassandrakka.actors.{ConfigurationManager, ClusterManager}
 
 import scala.reflect.ClassTag
 
 trait Components {
   self =>
+  import Components._
   implicit val components = self
+  implicit val system: ActorSystem
+  val configurationManager: ActorModule[ConfigurationManager] = ActorModule[ConfigurationManager]()
+  val clusterManager: ActorModule[ClusterManager] = ActorModule[ClusterManager]()
 }
 
 object Components {
