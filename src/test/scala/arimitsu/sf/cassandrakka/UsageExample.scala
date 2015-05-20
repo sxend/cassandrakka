@@ -29,7 +29,7 @@ class UsageExample(components: {
             complete("OK")
         }
       }
-    }
+    }.future
 
     future.onComplete {
       case Success(a) => a == "OK"

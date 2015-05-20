@@ -19,14 +19,15 @@ object Cassandrakka {
         override implicit val system: ActorSystem = _system
       }
       import components.system.dispatcher
-      override def withSession[A](directive: => Session => Directive[A]): Future[A] = {
+      import Directives._
+      override def withSession[A](directive: => Session => Directive[A]): Directive[A] = {
         implicit val timeout = Timeout(10, TimeUnit.SECONDS)
-        components.clusterManager.toActorRef.ask(GetSession).mapTo[Session].flatMap(session => directive(session).future)
+        components.clusterManager.toActorRef.ask(GetSession).mapTo[Session].flatMap(session => directive(session))
       }
     }
   }
 }
 trait Cassandrakka {
   private[cassandrakka] val components: Components
-  def withSession[A](directive: => Session => Directive[A]): Future[A]
+  def withSession[A](directive: => Session => Directive[A]): Directive[A]
 }
