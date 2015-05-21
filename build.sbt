@@ -15,7 +15,7 @@ resolvers += "sxend repo releases" at "http://dl.bintray.com/sxend/releases"
 resolvers += "sxend repo snapshots" at "http://dl.bintray.com/sxend/snapshots"
 
 libraryDependencies ++= Seq(
-  "com.typesafe.akka" %% "akka-actor" % "2.3.11",
+  "com.typesafe.akka" %% "akka-stream-experimental" % "1.0-RC2",
   "org.apache.cassandra" % "cassandra-all" % "2.1.5",
   "org.scalatest" %% "scalatest" % "2.2.4" % "test"
 )
