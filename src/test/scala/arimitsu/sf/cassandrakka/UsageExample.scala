@@ -26,7 +26,7 @@ class UsageExample(components: {
         id => execute(id, "1") {
           result =>
             println(result)
-            complete("OK")
+            "OK"
         }
       }
     }.future

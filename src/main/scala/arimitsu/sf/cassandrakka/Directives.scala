@@ -1,9 +1,11 @@
 package arimitsu.sf.cassandrakka
 
-import arimitsu.sf.cassandrakka.directives.{CompleteDirective, ExecuteDirective, PrepareDirective}
+import directives._
 
-object Directives extends AnyRef
+trait Directives extends AnyRef
   with PrepareDirective
   with ExecuteDirective
   with CompleteDirective {
 }
+
+object Directives extends Directives

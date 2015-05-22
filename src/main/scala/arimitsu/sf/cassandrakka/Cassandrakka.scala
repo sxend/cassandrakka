@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit
 
 import akka.actor.{ActorRef, Props, ActorSystem}
 import akka.util.Timeout
+import arimitsu.sf.cassandrakka._
 import arimitsu.sf.cassandrakka.actors.{ConfigurationManager, ClusterManager}
 import arimitsu.sf.cassandrakka.directives._
 import com.typesafe.config.Config
@@ -20,14 +21,14 @@ object Cassandrakka {
       }
       import components.system.dispatcher
       import Directives._
-      override def withSession[A](directive: => Session => Directive[A]): Directive[A] = {
+      override def withSession[A](op: => Op[A]): Future[A] = {
         implicit val timeout = Timeout(10, TimeUnit.SECONDS)
-        components.clusterManager.toActorRef.ask(GetSession).mapTo[Session].flatMap(session => directive(session))
+        components.clusterManager.toActorRef.ask(GetSession).mapTo[Session].flatMap(session => op(session))
       }
     }
   }
 }
 trait Cassandrakka {
   private[cassandrakka] val components: Components
-  def withSession[A](directive: => Session => Directive[A]): Directive[A]
+  def withSession[A](op: => Op[A]): Future[A]
 }
