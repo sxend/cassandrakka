@@ -22,7 +22,6 @@ resolvers ++= Seq(
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-stream-experimental" % "1.0-RC2",
   "com.chuusai" %% "shapeless" % "2.2.0-RC6",
-  "org.apache.cassandra" % "cassandra-all" % "2.1.5",
   "org.scalatest" %% "scalatest" % "2.2.4" % "test"
 )
 
