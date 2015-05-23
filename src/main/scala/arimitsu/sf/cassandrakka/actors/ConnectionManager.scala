@@ -6,7 +6,9 @@ import akka.actor.{ActorLogging, ActorRef, Actor}
 import akka.io.Tcp.{CommandFailed, Register, Connected, Connect}
 import akka.io.{Tcp, IO}
 
-class ConnectionManager(remoteAddress: InetSocketAddress) extends Actor with ActorLogging {
+class ConnectionManager(components: {
+
+}, remote: InetSocketAddress) extends Actor with ActorLogging {
   import context.system
   import arimitsu.sf.cassandrakka.actors.ConnectionManager.Protocol._
 
@@ -20,11 +22,10 @@ class ConnectionManager(remoteAddress: InetSocketAddress) extends Actor with Act
     case c @ Connected(remote, local) =>
       connection = sender()
       connection ! Register(self)
-    case ReConnect =>
-      connect()
+    case ReConnect => connect()
   }
   private def connect() = {
-    IO(Tcp) ! Connect(remoteAddress = remoteAddress)
+    IO(Tcp) ! Connect(remoteAddress = remote)
   }
   connect()
 }
