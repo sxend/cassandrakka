@@ -7,11 +7,11 @@ import com.typesafe.config.{Config, ConfigFactory, ConfigValue}
 
 import scala.concurrent.Future
 
-class ConfigurationManager(components: {
+class ConfigurationActor(components: {
   val defaultConfiguration: Option[Config]
-}, module: ActorModule[ConfigurationManager]) extends Actor with ActorLogging {
+}, module: ActorModule[ConfigurationActor]) extends Actor with ActorLogging {
 
-  import ConfigurationManager.Protocols._
+  import ConfigurationActor.Protocols._
   import context.dispatcher
 
   var configuration: Config = components.defaultConfiguration.getOrElse(ConfigFactory.load.getConfig("arimitsu.sf.cassandrakka"))
@@ -25,7 +25,7 @@ class ConfigurationManager(components: {
   }
 }
 
-object ConfigurationManager {
+object ConfigurationActor {
 
   object Protocols {
 
@@ -33,9 +33,9 @@ object ConfigurationManager {
 
     case object GetConfig
 
-    implicit object WithValueResult extends Mapping[ConfigurationManager, WithValue, Config]
+    implicit object WithValueResult extends Mapping[ConfigurationActor, WithValue, Config]
 
-    implicit object GetConfigMapping extends Mapping[ConfigurationManager, GetConfig.type , Config]
+    implicit object GetConfigMapping extends Mapping[ConfigurationActor, GetConfig.type , Config]
 
   }
 

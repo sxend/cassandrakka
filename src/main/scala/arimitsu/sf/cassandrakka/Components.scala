@@ -4,7 +4,7 @@ import java.net.InetSocketAddress
 
 import akka.actor._
 import akka.util.Timeout
-import arimitsu.sf.cassandrakka.actors.{ClusterManager, ConfigurationManager, ConnectionManager, NodeManager}
+import arimitsu.sf.cassandrakka.actors._
 
 import scala.concurrent.ExecutionContext
 
@@ -15,12 +15,12 @@ trait Components {
   implicit val system: ActorSystem
   val systemEC: ExecutionContext = system.dispatcher
   val defaultTimeout: Timeout = 1 second
-  val configurationManager: ActorModule[ConfigurationManager] =
-    new ActorModule[ConfigurationManager](module => Props(classOf[ConfigurationManager], components, module))
-  val clusterManager: ActorModule[ClusterManager] =
-    new ActorModule[ClusterManager](module => Props(classOf[ClusterManager], components, module))
+  val configurationManager: ActorModule[ConfigurationActor] =
+    new ActorModule[ConfigurationActor](module => Props(classOf[ConfigurationActor], components, module))
+  val clusterActor: ActorModule[ClusterActor] =
+    new ActorModule[ClusterActor](module => Props(classOf[ClusterActor], components, module))
   val connectionManager =
-    (remote: InetSocketAddress, number: Int, nodeManagerModule: ActorModule[NodeManager]) => new ActorModule[ConnectionManager](module => Props(classOf[ConnectionManager], components, module, remote, nodeManagerModule))
+    (remote: InetSocketAddress, number: Int, nodeManagerModule: ActorModule[NodeActor]) => new ActorModule[ConnectionActor](module => Props(classOf[ConnectionActor], components, module, remote, nodeManagerModule))
   val nodeManager =
-    (remote: InetSocketAddress) => new ActorModule[NodeManager](module => Props(classOf[NodeManager], components, module, remote))
+    (remote: InetSocketAddress) => new ActorModule[NodeActor](module => Props(classOf[NodeActor], components, module, remote))
 }

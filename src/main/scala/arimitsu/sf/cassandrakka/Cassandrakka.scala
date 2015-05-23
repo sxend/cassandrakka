@@ -5,14 +5,14 @@ import java.util.concurrent.TimeUnit
 import akka.actor.ActorSystem
 import akka.pattern.ask
 import akka.util.Timeout
-import arimitsu.sf.cassandrakka.actors.ClusterManager
+import arimitsu.sf.cassandrakka.actors._
 import com.typesafe.config.Config
 
 import scala.concurrent.Future
 
 object Cassandrakka {
 
-  import ClusterManager.Protocol._
+  import ClusterActor.Protocol._
 
   def apply(config: Option[Config] = None)(implicit system: ActorSystem): Cassandrakka = {
     val _system = system
@@ -25,7 +25,7 @@ object Cassandrakka {
 
       override def withSession[A](op: => Op[A]): Future[A] = {
         implicit val timeout = Timeout(10, TimeUnit.SECONDS)
-        components.clusterManager.actorRef.ask(GetSession).mapTo[Session].flatMap(session => op(session))
+        components.clusterActor.actorRef.ask(GetSession).mapTo[Session].flatMap(session => op(session))
       }
     }
   }

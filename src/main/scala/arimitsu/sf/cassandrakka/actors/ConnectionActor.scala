@@ -6,12 +6,12 @@ import akka.actor.{Actor, ActorLogging, ActorRef}
 import akka.io.Tcp._
 import akka.io.{IO, Tcp}
 import arimitsu.sf.cassandrakka.ActorModule
-import arimitsu.sf.cassandrakka.actors.NodeManager.Protocol._
+import arimitsu.sf.cassandrakka.actors.NodeActor.Protocol._
 
-class ConnectionManager(components: {
-}, module: ActorModule[ConnectionManager], remote: InetSocketAddress, number: Int, nodeManagerModule: ActorModule[NodeManager]) extends Actor with ActorLogging {
+class ConnectionActor(components: {
+}, module: ActorModule[ConnectionActor], remote: InetSocketAddress, number: Int, nodeManagerModule: ActorModule[NodeActor]) extends Actor with ActorLogging {
 
-  import arimitsu.sf.cassandrakka.actors.ConnectionManager.Protocol._
+  import arimitsu.sf.cassandrakka.actors.ConnectionActor.Protocol._
   import context.system
 
   private var connection: ActorRef = _
@@ -40,7 +40,7 @@ class ConnectionManager(components: {
   connect()
 }
 
-object ConnectionManager {
+object ConnectionActor {
 
   object Protocol {
 

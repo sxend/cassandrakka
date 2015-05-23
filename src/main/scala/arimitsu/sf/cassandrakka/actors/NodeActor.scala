@@ -6,24 +6,24 @@ import akka.actor.{Actor, ActorLogging}
 import akka.pattern._
 import akka.util.Timeout
 import arimitsu.sf.cassandrakka.ActorModule
-import arimitsu.sf.cassandrakka.actors.ConfigurationManager.Protocols.GetConfig
+import arimitsu.sf.cassandrakka.actors.ConfigurationActor.Protocols.GetConfig
 
 import scala.collection.mutable
 import scala.concurrent.Future
 
-class NodeManager(components: {
+class NodeActor(components: {
   val defaultTimeout: Timeout
-  val configurationManager: ActorModule[ConfigurationManager]
-  val connectionManager: (InetSocketAddress, Int, ActorModule[NodeManager]) => ActorModule[ConnectionManager]
-}, module: ActorModule[NodeManager], remote: InetSocketAddress) extends Actor with ActorLogging {
+  val configurationActor: ActorModule[ConfigurationActor]
+  val connectionActor: (InetSocketAddress, Int, ActorModule[NodeActor]) => ActorModule[ConnectionActor]
+}, module: ActorModule[NodeActor], remote: InetSocketAddress) extends Actor with ActorLogging {
   implicit val timeout = components.defaultTimeout
   import context.dispatcher
 
-  val configurationManager = components.configurationManager
+  val configurationActor = components.configurationActor
 
-  import arimitsu.sf.cassandrakka.actors.NodeManager.Protocol._
+  import arimitsu.sf.cassandrakka.actors.NodeActor.Protocol._
 
-  private val connections = mutable.Map[String, ActorModule[ConnectionManager]]()
+  private val connections = mutable.Map[String, ActorModule[ConnectionActor]]()
 
   def receive = {
     case ConnectAll => connectAll()
@@ -32,13 +32,13 @@ class NodeManager(components: {
       connections.put(id, connection)
       Future(connection).pipeTo(sender())
     case message@Stopped(stoppedRemote, number) if remote.getHostString == stoppedRemote.getHostString =>
-      log.warning(s"Connection Manager is Stopped. massage: $message, sender: ${sender().toString()}, self: ${self.toString()}")
+      log.warning(s"Connection Actor is Stopped. massage: $message, sender: ${sender().toString()}, self: ${self.toString()}")
       connect(number)
     case message => log.warning(s"Unhandled Message. massage: $message, sender: ${sender().toString()}, self: ${self.toString()}")
   }
 
   def connectAll() = {
-    configurationManager.typedAsk(GetConfig).map {
+    configurationActor.typedAsk(GetConfig).map {
       config =>
         (1 until config.getInt("connection-per-node")).foreach {
           number => connect(number)
@@ -47,12 +47,12 @@ class NodeManager(components: {
   }
 
   private def connect(number: Int) = {
-    val connection = components.connectionManager(remote, number, module)
+    val connection = components.connectionActor(remote, number, module)
     context.self ! AddConnection(remote.getHostString + number, connection)
   }
 }
 
-object NodeManager {
+object NodeActor {
 
   object Protocol {
 
@@ -60,7 +60,7 @@ object NodeManager {
 
     case class Connect(number: Int)
 
-    case class AddConnection(id: String, connection: ActorModule[ConnectionManager])
+    case class AddConnection(id: String, connection: ActorModule[ConnectionActor])
 
     case class Stopped(stoppedRemote: InetSocketAddress, number: Int)
 

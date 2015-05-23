@@ -5,22 +5,22 @@ import java.net.InetSocketAddress
 import akka.actor.{Actor, ActorLogging}
 import akka.util.Timeout
 import arimitsu.sf.cassandrakka.ActorModule
-import arimitsu.sf.cassandrakka.actors.ClusterManager.Protocol._
-import arimitsu.sf.cassandrakka.actors.ConfigurationManager.Protocols._
+import arimitsu.sf.cassandrakka.actors.ClusterActor.Protocol._
+import arimitsu.sf.cassandrakka.actors.ConfigurationActor.Protocols._
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 
-class ClusterManager(components: {
+class ClusterActor(components: {
   val defaultTimeout: Timeout
-  val configurationManager: ActorModule[ConfigurationManager]
-  val nodeManager: InetSocketAddress => ActorModule[NodeManager]
-}, module: ActorModule[ClusterManager]) extends Actor with ActorLogging {
+  val configurationManager: ActorModule[ConfigurationActor]
+  val nodeManager: InetSocketAddress => ActorModule[NodeActor]
+}, module: ActorModule[ClusterActor]) extends Actor with ActorLogging {
   implicit val timeout = components.defaultTimeout
   import context.dispatcher
 
   private val configurationManager = components.configurationManager
-  private val nodes = mutable.Map[String, ActorModule[NodeManager]]()
+  private val nodes = mutable.Map[String, ActorModule[NodeActor]]()
 
   def receive = {
     case AddNode(node) => nodes.put(node.toString, node)
@@ -44,13 +44,13 @@ class ClusterManager(components: {
   start()
 }
 
-object ClusterManager {
+object ClusterActor {
 
   object Protocol {
 
     case object GetSession
 
-    case class AddNode(remote: ActorModule[NodeManager])
+    case class AddNode(remote: ActorModule[NodeActor])
 
   }
 
