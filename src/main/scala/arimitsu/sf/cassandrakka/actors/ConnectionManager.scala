@@ -9,7 +9,7 @@ import arimitsu.sf.cassandrakka.ActorModule
 import arimitsu.sf.cassandrakka.actors.NodeManager.Protocol._
 
 class ConnectionManager(components: {
-}, remote: InetSocketAddress, number: Int, nodeManager: ActorModule[NodeManager]) extends Actor with ActorLogging {
+}, module: ActorModule[ConnectionManager], remote: InetSocketAddress, number: Int, nodeManagerModule: ActorModule[NodeManager]) extends Actor with ActorLogging {
 
   import arimitsu.sf.cassandrakka.actors.ConnectionManager.Protocol._
   import context.system
@@ -26,7 +26,7 @@ class ConnectionManager(components: {
       connection ! Register(self)
     case message@Closed =>
       log.warning(s"Connection closed. message: $message, sender: ${sender().toString()}, self: ${self.toString()}")
-      nodeManager.toActorRef ! Stopped(remote, number)
+      nodeManagerModule.actorRef ! Stopped(remote, number)
       context stop self
     case ReConnect =>
       connect()

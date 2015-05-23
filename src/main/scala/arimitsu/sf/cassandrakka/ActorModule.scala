@@ -6,10 +6,11 @@ import akka.util._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
 
-class ActorModule[A <: Actor](props: => Props, name: => String = "")(implicit system: ActorSystem) {
-  def toActorRef: ActorRef = name match {
-    case "" => system.actorOf(props)
-    case _ => system.actorOf(props, name)
+class ActorModule[A <: Actor](moduleToProps: => (this.type) => Props, name: => String = "")(implicit system: ActorSystem) {
+
+  lazy val actorRef: ActorRef = name match {
+    case "" => system.actorOf(moduleToProps(this))
+    case _ => system.actorOf(moduleToProps(this), name)
   }
 }
 
@@ -22,7 +23,7 @@ object ActorModule {
 
     import akka.pattern.ask
 
-    def typedAsk[A, B](message: => A)(implicit mapping: Mapping[M, A, B], ec: ExecutionContext, timeout: Timeout, tag: ClassTag[B]): Future[B] = module.toActorRef.ask(message).mapTo[B]
+    def typedAsk[A, B](message: => A)(implicit mapping: Mapping[M, A, B], ec: ExecutionContext, timeout: Timeout, tag: ClassTag[B]): Future[B] = module.actorRef.ask(message).mapTo[B]
   }
 
 }

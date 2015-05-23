@@ -13,7 +13,7 @@ import scala.concurrent.Future
 class NodeManager(components: {
   val configurationManager: ActorModule[ConfigurationManager]
   val connectionManager: (InetSocketAddress, Int) => ActorModule[ConnectionManager]
-}, remote: InetSocketAddress) extends Actor with ActorLogging {
+}, module: ActorModule[NodeManager], remote: InetSocketAddress) extends Actor with ActorLogging {
 
   import context.dispatcher
 
@@ -45,7 +45,7 @@ class NodeManager(components: {
   }
 
   private def connect(number: Int) = {
-    val connection = components.connectionManager(remote, number)
+    val connection = components.connectionManager(remote, number, self)
     context.self ! AddConnection(remote.getHostString + number, connection)
   }
 }

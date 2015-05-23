@@ -13,7 +13,7 @@ import scala.collection.mutable
 class ClusterManager(components: {
   val configurationManager: ActorModule[ConfigurationManager]
   val nodeManager: InetSocketAddress => ActorModule[NodeManager]
-}) extends Actor with ActorLogging {
+}, module: ActorModule[ClusterManager]) extends Actor with ActorLogging {
 
   import context.dispatcher
 

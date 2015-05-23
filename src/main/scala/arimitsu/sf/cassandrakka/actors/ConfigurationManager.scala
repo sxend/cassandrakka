@@ -1,6 +1,7 @@
 package arimitsu.sf.cassandrakka.actors
 
 import akka.actor.{Actor, ActorLogging}
+import arimitsu.sf.cassandrakka.ActorModule
 import arimitsu.sf.cassandrakka.ActorModule.Mapping
 import com.typesafe.config.{Config, ConfigFactory, ConfigValue}
 
@@ -8,7 +9,7 @@ import scala.concurrent.Future
 
 class ConfigurationManager(components: {
   val defaultConfiguration: Option[Config]
-}) extends Actor with ActorLogging {
+}, module: ActorModule[ConfigurationManager]) extends Actor with ActorLogging {
 
   import ConfigurationManager.Protocols._
   import context.dispatcher

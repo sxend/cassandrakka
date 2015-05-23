@@ -10,11 +10,11 @@ trait Components {
   implicit val components = self
   implicit val system: ActorSystem
   val configurationManager: ActorModule[ConfigurationManager] =
-    new ActorModule[ConfigurationManager](Props(classOf[ConfigurationManager], components))
+    new ActorModule[ConfigurationManager](module => Props(classOf[ConfigurationManager], components, module))
   val clusterManager: ActorModule[ClusterManager] =
-    new ActorModule[ClusterManager](Props(classOf[ClusterManager], components))
+    new ActorModule[ClusterManager](module => Props(classOf[ClusterManager], components, module))
   val connectionManager =
-    (remote: InetSocketAddress, number: Int) => new ActorModule[ConnectionManager](Props(classOf[ConnectionManager], components, remote))
+    (remote: InetSocketAddress, number: Int, nodeManagerModule: ActorModule[NodeManager]) => new ActorModule[ConnectionManager](module => Props(classOf[ConnectionManager], components, module, remote, nodeManagerModule))
   val nodeManager =
-    (remote: InetSocketAddress) => new ActorModule[NodeManager](Props(classOf[NodeManager], components, remote))
+    (remote: InetSocketAddress) => new ActorModule[NodeManager](module => Props(classOf[NodeManager], components, module, remote))
 }
