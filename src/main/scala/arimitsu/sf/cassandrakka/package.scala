@@ -12,12 +12,14 @@ package object cassandrakka {
 
   trait HListable[T] {
     type Out <: HList
+
     def apply(value: T): Out
   }
 
   object HListable extends LowerPriorityHListable {
     implicit def fromHList[T <: HList] = new HListable[T] {
       type Out = T
+
       def apply(value: T) = value
     }
   }
@@ -25,7 +27,9 @@ package object cassandrakka {
   private[routing] abstract class LowerPriorityHListable {
     implicit def fromAnyRef[T] = new HListable[T] {
       type Out = T :: HNil
+
       def apply(value: T) = value :: HNil
     }
   }
+
 }

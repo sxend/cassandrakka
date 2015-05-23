@@ -2,7 +2,8 @@ package arimitsu.sf.cassandrakka
 
 import shapeless._
 
-abstract class Directive[T <: HList] { self =>
+abstract class Directive[T <: HList] {
+  self =>
 
 }
 

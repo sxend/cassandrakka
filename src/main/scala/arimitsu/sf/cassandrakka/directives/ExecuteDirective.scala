@@ -1,7 +1,6 @@
 package arimitsu.sf.cassandrakka.directives
 
 import arimitsu.sf.cassandrakka.Session
-import arimitsu.sf.cassandrakka.directives.Directive1
 
 import scala.concurrent.Future
 

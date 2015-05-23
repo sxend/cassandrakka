@@ -3,7 +3,7 @@ package arimitsu.sf.cassandrakka
 import java.net.InetSocketAddress
 
 import akka.actor._
-import arimitsu.sf.cassandrakka.actors.{NodeManager, ConnectionManager, ConfigurationManager, ClusterManager}
+import arimitsu.sf.cassandrakka.actors.{ClusterManager, ConfigurationManager, ConnectionManager, NodeManager}
 
 trait Components {
   self =>

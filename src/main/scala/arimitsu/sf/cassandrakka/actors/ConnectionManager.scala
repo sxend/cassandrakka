@@ -2,17 +2,17 @@ package arimitsu.sf.cassandrakka.actors
 
 import java.net.InetSocketAddress
 
-import akka.actor.{ActorLogging, ActorRef, Actor}
+import akka.actor.{Actor, ActorLogging, ActorRef}
 import akka.io.Tcp._
-import akka.io.{Tcp, IO}
+import akka.io.{IO, Tcp}
 import arimitsu.sf.cassandrakka.ActorModule
 import arimitsu.sf.cassandrakka.actors.NodeManager.Protocol._
 
 class ConnectionManager(components: {
 }, remote: InetSocketAddress, number: Int, nodeManager: ActorModule[NodeManager]) extends Actor with ActorLogging {
-  import context.system
-  import context.dispatcher
+
   import arimitsu.sf.cassandrakka.actors.ConnectionManager.Protocol._
+  import context.system
 
   private var connection: ActorRef = _
 
@@ -21,7 +21,7 @@ class ConnectionManager(components: {
     case message@CommandFailed(c: Tcp.Connect) =>
       log.warning(s"Connect command failed. message: $message, sender: ${sender().toString()}, self: ${self.toString()}")
       context stop self
-    case c @ Connected(connectedRemote, local) =>
+    case c@Connected(connectedRemote, local) =>
       connection = sender()
       connection ! Register(self)
     case message@Closed =>
@@ -32,14 +32,21 @@ class ConnectionManager(components: {
       connect()
     case message => log.warning(s"Unhandled Message. message: $message, sender: ${sender().toString()}, self: ${self.toString()}")
   }
+
   private def connect() = {
     IO(Tcp) ! Connect(remoteAddress = remote)
   }
+
   connect()
 }
+
 object ConnectionManager {
+
   object Protocol {
+
     case object ReConnect
+
   }
+
 }
 

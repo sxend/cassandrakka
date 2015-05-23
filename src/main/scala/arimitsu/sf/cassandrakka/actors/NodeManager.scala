@@ -2,7 +2,7 @@ package arimitsu.sf.cassandrakka.actors
 
 import java.net.InetSocketAddress
 
-import akka.actor.{ActorLogging, Props, ActorRef, Actor}
+import akka.actor.{Actor, ActorLogging}
 import akka.pattern._
 import arimitsu.sf.cassandrakka.ActorModule
 import arimitsu.sf.cassandrakka.actors.ConfigurationManager.Protocols.GetConfig
@@ -14,7 +14,9 @@ class NodeManager(components: {
   val configurationManager: ActorModule[ConfigurationManager]
   val connectionManager: (InetSocketAddress, Int) => ActorModule[ConnectionManager]
 }, remote: InetSocketAddress) extends Actor with ActorLogging {
+
   import context.dispatcher
+
   val configurationManager = components.configurationManager
 
   import arimitsu.sf.cassandrakka.actors.NodeManager.Protocol._
@@ -24,7 +26,7 @@ class NodeManager(components: {
   def receive = {
     case ConnectAll => connectAll()
     case Connect(number) => connect(number)
-    case AddConnection(id ,connection) =>
+    case AddConnection(id, connection) =>
       connections.put(id, connection)
       Future(connection).pipeTo(sender())
     case message@Stopped(stoppedRemote, number) if remote.getHostString == stoppedRemote.getHostString =>
@@ -41,6 +43,7 @@ class NodeManager(components: {
         }
     }
   }
+
   private def connect(number: Int) = {
     val connection = components.connectionManager(remote, number)
     context.self ! AddConnection(remote.getHostString + number, connection)
@@ -56,8 +59,9 @@ object NodeManager {
     case class Connect(number: Int)
 
     case class AddConnection(id: String, connection: ActorModule[ConnectionManager])
-  
+
     case class Stopped(stoppedRemote: InetSocketAddress, number: Int)
+
   }
 
 }

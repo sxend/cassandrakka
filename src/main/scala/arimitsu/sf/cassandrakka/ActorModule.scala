@@ -2,8 +2,8 @@ package arimitsu.sf.cassandrakka
 
 import akka.actor._
 import akka.util._
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+
+import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
 
 class ActorModule[A <: Actor](props: => Props, name: => String = "")(implicit system: ActorSystem) {

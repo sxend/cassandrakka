@@ -1,17 +1,18 @@
 package arimitsu.sf.cassandrakka.actors
 
-import akka.actor.{ActorLogging, Actor}
+import akka.actor.{Actor, ActorLogging}
 import arimitsu.sf.cassandrakka.ActorModule.Mapping
-import arimitsu.sf.cassandrakka.actors.ConfigurationManager.Protocols.GetConfig
-import com.typesafe.config.{ConfigValue, ConfigFactory, Config}
+import com.typesafe.config.{Config, ConfigFactory, ConfigValue}
 
 import scala.concurrent.Future
 
 class ConfigurationManager(components: {
   val defaultConfiguration: Option[Config]
 }) extends Actor with ActorLogging {
-  import context.dispatcher
+
   import ConfigurationManager.Protocols._
+  import context.dispatcher
+
   var configuration: Config = components.defaultConfiguration.getOrElse(ConfigFactory.load.getConfig("arimitsu.sf.cassandrakka"))
 
   def receive = {
@@ -26,8 +27,11 @@ class ConfigurationManager(components: {
 object ConfigurationManager {
 
   object Protocols {
+
     case class WithValue(name: String, value: ConfigValue)
+
     implicit object WithValueResult extends Mapping[ConfigurationManager, WithValue, Config]
+
     implicit case object GetConfig extends Mapping[ConfigurationManager, GetConfig.type, Config]
 
   }
