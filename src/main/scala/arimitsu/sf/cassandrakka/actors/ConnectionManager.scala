@@ -34,7 +34,7 @@ class ConnectionManager(components: {
   }
 
   private def connect() = {
-    IO(Tcp) ! Connect(remoteAddress = remote)
+    IO(Tcp) ! Tcp.Connect(remoteAddress = remote)
   }
 
   connect()

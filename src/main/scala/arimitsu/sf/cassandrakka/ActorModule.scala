@@ -6,7 +6,7 @@ import akka.util._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
 
-class ActorModule[A <: Actor](moduleToProps: => (this.type) => Props, name: => String = "")(implicit system: ActorSystem) {
+class ActorModule[A <: Actor](moduleToProps: => (ActorModule[A]) => Props, name: => String = "")(implicit system: ActorSystem) {
 
   lazy val actorRef: ActorRef = name match {
     case "" => system.actorOf(moduleToProps(this))

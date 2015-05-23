@@ -3,6 +3,7 @@ package arimitsu.sf.cassandrakka.actors
 import java.net.InetSocketAddress
 
 import akka.actor.{Actor, ActorLogging}
+import akka.util.Timeout
 import arimitsu.sf.cassandrakka.ActorModule
 import arimitsu.sf.cassandrakka.actors.ClusterManager.Protocol._
 import arimitsu.sf.cassandrakka.actors.ConfigurationManager.Protocols._
@@ -11,10 +12,11 @@ import scala.collection.JavaConversions._
 import scala.collection.mutable
 
 class ClusterManager(components: {
+  val defaultTimeout: Timeout
   val configurationManager: ActorModule[ConfigurationManager]
   val nodeManager: InetSocketAddress => ActorModule[NodeManager]
 }, module: ActorModule[ClusterManager]) extends Actor with ActorLogging {
-
+  implicit val timeout = components.defaultTimeout
   import context.dispatcher
 
   private val configurationManager = components.configurationManager

@@ -24,7 +24,7 @@ package object cassandrakka {
     }
   }
 
-  private[routing] abstract class LowerPriorityHListable {
+  abstract class LowerPriorityHListable {
     implicit def fromAnyRef[T] = new HListable[T] {
       type Out = T :: HNil
 

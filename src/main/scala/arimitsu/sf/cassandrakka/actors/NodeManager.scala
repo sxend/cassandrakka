@@ -4,6 +4,7 @@ import java.net.InetSocketAddress
 
 import akka.actor.{Actor, ActorLogging}
 import akka.pattern._
+import akka.util.Timeout
 import arimitsu.sf.cassandrakka.ActorModule
 import arimitsu.sf.cassandrakka.actors.ConfigurationManager.Protocols.GetConfig
 
@@ -11,10 +12,11 @@ import scala.collection.mutable
 import scala.concurrent.Future
 
 class NodeManager(components: {
+  val defaultTimeout: Timeout
   val configurationManager: ActorModule[ConfigurationManager]
-  val connectionManager: (InetSocketAddress, Int) => ActorModule[ConnectionManager]
+  val connectionManager: (InetSocketAddress, Int, ActorModule[NodeManager]) => ActorModule[ConnectionManager]
 }, module: ActorModule[NodeManager], remote: InetSocketAddress) extends Actor with ActorLogging {
-
+  implicit val timeout = components.defaultTimeout
   import context.dispatcher
 
   val configurationManager = components.configurationManager
@@ -45,7 +47,7 @@ class NodeManager(components: {
   }
 
   private def connect(number: Int) = {
-    val connection = components.connectionManager(remote, number, self)
+    val connection = components.connectionManager(remote, number, module)
     context.self ! AddConnection(remote.getHostString + number, connection)
   }
 }

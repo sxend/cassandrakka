@@ -25,7 +25,7 @@ object Cassandrakka {
 
       override def withSession[A](op: => Op[A]): Future[A] = {
         implicit val timeout = Timeout(10, TimeUnit.SECONDS)
-        components.clusterManager.toActorRef.ask(GetSession).mapTo[Session].flatMap(session => op(session))
+        components.clusterManager.actorRef.ask(GetSession).mapTo[Session].flatMap(session => op(session))
       }
     }
   }

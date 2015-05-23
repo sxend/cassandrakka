@@ -3,12 +3,18 @@ package arimitsu.sf.cassandrakka
 import java.net.InetSocketAddress
 
 import akka.actor._
+import akka.util.Timeout
 import arimitsu.sf.cassandrakka.actors.{ClusterManager, ConfigurationManager, ConnectionManager, NodeManager}
+
+import scala.concurrent.ExecutionContext
 
 trait Components {
   self =>
+  import scala.concurrent.duration._
   implicit val components = self
   implicit val system: ActorSystem
+  val systemEC: ExecutionContext = system.dispatcher
+  val defaultTimeout: Timeout = 1 second
   val configurationManager: ActorModule[ConfigurationManager] =
     new ActorModule[ConfigurationManager](module => Props(classOf[ConfigurationManager], components, module))
   val clusterManager: ActorModule[ClusterManager] =

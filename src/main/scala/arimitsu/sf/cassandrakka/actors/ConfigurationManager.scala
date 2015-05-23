@@ -31,9 +31,11 @@ object ConfigurationManager {
 
     case class WithValue(name: String, value: ConfigValue)
 
+    case object GetConfig
+
     implicit object WithValueResult extends Mapping[ConfigurationManager, WithValue, Config]
 
-    implicit case object GetConfig extends Mapping[ConfigurationManager, GetConfig.type, Config]
+    implicit object GetConfigMapping extends Mapping[ConfigurationManager, GetConfig.type , Config]
 
   }
 
