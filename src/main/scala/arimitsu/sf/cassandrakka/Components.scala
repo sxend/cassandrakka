@@ -14,7 +14,7 @@ trait Components {
   val clusterManager: ActorModule[ClusterManager] =
     new ActorModule[ClusterManager](Props(classOf[ClusterManager], components))
   val connectionManager =
-    (remote: InetSocketAddress) => new ActorModule[ConnectionManager](Props(classOf[ConnectionManager], components, remote))
+    (remote: InetSocketAddress, number: Int) => new ActorModule[ConnectionManager](Props(classOf[ConnectionManager], components, remote))
   val nodeManager =
     (remote: InetSocketAddress) => new ActorModule[NodeManager](Props(classOf[NodeManager], components, remote))
 }

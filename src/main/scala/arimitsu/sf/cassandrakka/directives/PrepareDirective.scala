@@ -18,8 +18,7 @@ trait PrepareMagnet {
 }
 
 object PrepareMagnet {
-  implicit def apply[T](query: => String)(implicit hl: HListable[T], session: Session) =
-    new Directive1[hl.Out] with PrepareMagnet {
+  implicit def apply[T](query: => String)(implicit hl: HListable[T], session: Session) = new Directive1[hl.Out] with PrepareMagnet {
 
     }
 }

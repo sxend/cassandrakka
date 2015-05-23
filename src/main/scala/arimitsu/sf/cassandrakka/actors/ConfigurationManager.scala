@@ -19,6 +19,7 @@ class ConfigurationManager(components: {
     case WithValue(name, value) =>
       val after = configuration = configuration.withValue(name, value)
       Future(after)
+    case message => log.warning(s"Unhandled Message. message: $message, sender: ${sender().toString()}, self: ${self.toString()}")
   }
 }
 
