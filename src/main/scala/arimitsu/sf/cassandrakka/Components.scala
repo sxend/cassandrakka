@@ -1,21 +1,20 @@
 package arimitsu.sf.cassandrakka
 
-import akka.actor._
-import arimitsu.sf.cassandrakka.actors.{ConfigurationManager, ClusterManager}
+import java.net.InetSocketAddress
 
-import scala.reflect.ClassTag
+import akka.actor._
+import arimitsu.sf.cassandrakka.actors.{NodeManager, ConnectionManager, ConfigurationManager, ClusterManager}
 
 trait Components {
   self =>
-  import Components._
   implicit val components = self
   implicit val system: ActorSystem
-  val configurationManager: ActorModule[ConfigurationManager] = ActorModule[ConfigurationManager]()
-  val clusterManager: ActorModule[ClusterManager] = ActorModule[ClusterManager]()
-}
-
-object Components {
-  case class ActorModule[A <: Actor](implicit tag: ClassTag[A], system: ActorRefFactory, components: Components){
-    def toActorRef: ActorRef = system.actorOf(Props(tag.runtimeClass, components))
-  }
+  val configurationManager: ActorModule[ConfigurationManager] =
+    new ActorModule[ConfigurationManager](Props(classOf[ConfigurationManager], components))
+  val clusterManager: ActorModule[ClusterManager] =
+    new ActorModule[ClusterManager](Props(classOf[ClusterManager], components))
+  val connectionManager =
+    (remote: InetSocketAddress) => new ActorModule[ConnectionManager](Props(classOf[ConnectionManager], components, remote))
+  val nodeManager =
+    (remote: InetSocketAddress) => new ActorModule[NodeManager](Props(classOf[NodeManager], components, remote))
 }
