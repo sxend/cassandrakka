@@ -15,22 +15,34 @@ class SessionActor(components: {
 
   import arimitsu.sf.cassandrakka.actors.SessionActor.Protocols._
   import context.system
+
   private var stream: Short = 0
   private var isStartup: Boolean = false
-  private var connection: ActorRef = _
+  private var connection: Option[ActorRef] = None
+  private def isConnected = connection.isDefined
+  private def withConnection[A](message: A)(f: => ActorRef => Unit) = {
+    if(isConnected){
+      f(connection.get)
+    } else {
+      self ! message
+    }
+  }
 
   def receive = {
     case message@CommandFailed(c: Tcp.Connect) =>
       log.warning(s"Connect command failed. message: $message, sender: ${sender().toString()}, self: ${self.toString()}")
       context stop self
     case c@Connected(connectedRemote, local) =>
-      connection = sender()
-      connection ! Tcp.Register(self)
+      val conn = sender()
+      connection = Option(conn)
+      conn ! Tcp.Register(self)
     case message@Closed =>
       log.warning(s"Connection closed. message: $message, sender: ${sender().toString()}, self: ${self.toString()}")
       nodeManagerModule.actorRef ! Stopped(remote, number)
       context stop self
     case ReConnect =>
+      connection = None
+      connection.get ! Tcp.Close
       connect()
     case req@Startup =>
 

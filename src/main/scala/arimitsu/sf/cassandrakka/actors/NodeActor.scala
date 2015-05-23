@@ -23,30 +23,30 @@ class NodeActor(components: {
 
   import arimitsu.sf.cassandrakka.actors.NodeActor.Protocols._
 
-  private val connections = mutable.Map[String, ActorModule[SessionActor]]()
+  private val sessions = mutable.Map[String, ActorModule[SessionActor]]()
 
   def receive = {
-    case ConnectAll => connectAll()
-    case Connect(number) => connect(number)
-    case AddSession(id, connection) =>
-      connections.put(id, connection)
-      Future(connection).pipeTo(sender())
+    case StartAllSession => startAllSession()
+    case StartSession(number) => startSession(number)
+    case AddSession(id, session) =>
+      sessions.put(id, session)
+      Future(session).pipeTo(sender())
     case message@Stopped(stoppedRemote, number) if remote.getHostString == stoppedRemote.getHostString =>
       log.warning(s"Connection Actor is Stopped. massage: $message, sender: ${sender().toString()}, self: ${self.toString()}")
-      connect(number)
+      startSession(number)
     case message => log.warning(s"Unhandled Message. massage: $message, sender: ${sender().toString()}, self: ${self.toString()}")
   }
 
-  def connectAll() = {
+  def startAllSession() = {
     configurationActor.typedAsk(GetConfig).map {
       config =>
         (1 until config.getInt("connection-per-node")).foreach {
-          number => connect(number)
+          number => startSession(number)
         }
     }
   }
 
-  private def connect(number: Int) = {
+  private def startSession(number: Int) = {
     val session = components.sessionActor(remote, number, module)
     context.self ! AddSession(remote.getHostString + number, session)
   }
@@ -56,9 +56,9 @@ object NodeActor {
 
   object Protocols {
 
-    case object ConnectAll
+    case object StartAllSession
 
-    case class Connect(number: Int)
+    case class StartSession(number: Int)
 
     case class AddSession(id: String, connection: ActorModule[SessionActor])
 
