@@ -8,9 +8,15 @@ import scala.concurrent.Future
 trait PrepareDirective {
   self =>
 //  def prepare(magnet: PrepareMagnet): PrepareMagnet = magnet
+  def prepare(query: => String): PrepareMagnet = query
+  abstract implicit class PrepareMagnet(query: => String) {
+    def apply[A](f: => Byte => A)(implicit session: Session): Future[A] = {
+      session !
+    }
+  }
 }
 
-//object PrepareDirective extends PrepareDirective
+object PrepareDirective extends PrepareDirective
 //
 //trait PrepareMagnet {
 //  type Out <: HList

@@ -20,7 +20,18 @@ class UsageExample(components: {
   import Directives._
   import components.cassandrakka._
   def main() = {
+    val future = withSession { implicit session =>
+      prepare("select * from hello_world where id = '?'") {
+        id =>
+          println(id)
+          "OK"
+      }
+    }
 
+    future onSuccess {
+      case result =>
+        println(result)
+    }
 
   }
 }
