@@ -71,7 +71,22 @@ object Notations {
   case class STRING_MAP(value: Map[STRING, STRING]) extends Notation(value)
   case class STRING_MULTIMAP(value: Map[STRING, STRING_LIST]) extends Notation(value)
   case class BYTES_MAP(value: Map[STRING, BYTES]) extends Notation(value)
-  def fromBytes(bytes: Array[Byte]): Notation = {
-    ???
-  }
+
+  def parseINT (bytes: Array[Byte]): INT = ???
+  def parseLONG (bytes: Array[Byte]): LONG = ???
+  def parseSHORT (bytes: Array[Byte]): SHORT = ???
+  def parseSTRING (bytes: Array[Byte]): STRING = ???
+  def parseLONG_STRING (bytes: Array[Byte]): LONG_STRING = ???
+  def parseUUID (bytes: Array[Byte]): UUID = ???
+  def parseSTRING_LIST (bytes: Array[Byte]): STRING_LIST = ???
+  def parseBYTES (bytes: Array[Byte]): BYTES = ???
+  def parseVALUE (bytes: Array[Byte]): VALUE = ???
+  def parseSHORT_BYTES (bytes: Array[Byte]): SHORT_BYTES = ???
+  def parseOPTION (bytes: Array[Byte]): OPTION = ???
+  def parseOPTION_LIST (bytes: Array[Byte]): OPTION_LIST = ???
+  def parseINET (bytes: Array[Byte]): INET = ???
+  def parseCONSISTENCY (bytes: Array[Byte]): CONSISTENCY = ???
+  def parseSTRING_MAP (bytes: Array[Byte]): STRING_MAP = ???
+  def parseSTRING_MULTIMAP (bytes: Array[Byte]): STRING_MULTIMAP = ???
+  def parseBYTES_MAP (bytes: Array[Byte]): BYTES_MAP = ???
 }
