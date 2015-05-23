@@ -10,10 +10,10 @@ import arimitsu.sf.cassandrakka.ActorModule
 import arimitsu.sf.cassandrakka.ActorModule.Mapping
 import arimitsu.sf.cassandrakka.actors.NodeActor.Protocols._
 
-class ConnectionActor(components: {
-}, module: ActorModule[ConnectionActor], remote: InetSocketAddress, number: Int, nodeManagerModule: ActorModule[NodeActor]) extends Actor with ActorLogging {
+class SessionActor(components: {
+}, module: ActorModule[SessionActor], remote: InetSocketAddress, number: Int, nodeManagerModule: ActorModule[NodeActor]) extends Actor with ActorLogging {
 
-  import arimitsu.sf.cassandrakka.actors.ConnectionActor.Protocols._
+  import arimitsu.sf.cassandrakka.actors.SessionActor.Protocols._
   import context.system
   private var stream: Short = 0
   private var isStartup: Boolean = false
@@ -52,7 +52,7 @@ class ConnectionActor(components: {
   connect()
 }
 
-object ConnectionActor {
+object SessionActor {
 
   object Protocols {
 
