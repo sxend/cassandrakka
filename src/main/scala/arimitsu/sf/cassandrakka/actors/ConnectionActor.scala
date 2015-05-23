@@ -5,11 +5,12 @@ import java.net.InetSocketAddress
 import akka.actor.{Actor, ActorLogging, ActorRef}
 import akka.io.Tcp._
 import akka.io.{IO, Tcp}
+import akka.util.ByteString
 import arimitsu.sf.cassandrakka.ActorModule
 import arimitsu.sf.cassandrakka.actors.NodeActor.Protocols._
 
 class ConnectionActor(components: {
-}, module: ActorModule[ConnectionActor], remote: InetSocketAddress, number: Int, nodeManagerModule: ActorModule[NodeActor]) extends Actor with ActorLogging {
+}, module: ActorModule[ConnectionActor], remote: InetSocketAddress, number: Int, nodeManagerModule: ActorModule[NodeActor], sessionActorModule: ActorModule[SessionActor]) extends Actor with ActorLogging {
 
   import arimitsu.sf.cassandrakka.actors.ConnectionActor.Protocols._
   import context.system
@@ -45,6 +46,7 @@ object ConnectionActor {
   object Protocols {
 
     case object ReConnect
+    case class Send(data: ByteString)
 
   }
 

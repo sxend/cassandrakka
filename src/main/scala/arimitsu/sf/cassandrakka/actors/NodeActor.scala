@@ -48,6 +48,7 @@ class NodeActor(components: {
 
   private def connect(number: Int) = {
     val connection = components.connectionActor(remote, number, module)
+    val session = components.sessionActor(connection)
     context.self ! AddConnection(remote.getHostString + number, connection)
   }
 }

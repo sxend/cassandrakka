@@ -20,7 +20,8 @@ trait Components {
   val clusterActor: ActorModule[ClusterActor] =
     new ActorModule[ClusterActor](module => Props(classOf[ClusterActor], components, module))
   val connectionManager =
-    (remote: InetSocketAddress, number: Int, nodeManagerModule: ActorModule[NodeActor]) => new ActorModule[ConnectionActor](module => Props(classOf[ConnectionActor], components, module, remote, nodeManagerModule))
+    (remote: InetSocketAddress, number: Int, nodeManagerModule: ActorModule[NodeActor]) => new ActorModule[ConnectionActor](module => Props(classOf[ConnectionActor], components, module, remote, nodeManagerModule, sessionActorModule))
   val nodeManager =
     (remote: InetSocketAddress) => new ActorModule[NodeActor](module => Props(classOf[NodeActor], components, module, remote))
+  val sessionActor = new ActorModule[SessionActor](module => Props(classOf[NodeActor], components))
 }
