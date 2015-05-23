@@ -14,4 +14,17 @@ object Consistencies {
   case object SERIAL extends Consistency(0x0008.toShort)
   case object LOCAL_SERIAL extends Consistency(0x0009.toShort)
   case object LOCAL_ONE extends Consistency(0x000A.toShort)
+  def fromShorts(s: Short): Consistency = {
+    case 0x0000 => ANY
+    case 0x0001 => ONE
+    case 0x0002 => TWO
+    case 0x0003 => THREE
+    case 0x0004 => QUORUM
+    case 0x0005 => ALL
+    case 0x0006 => LOCAL_QUORUM
+    case 0x0007 => EACH_QUORUM
+    case 0x0008 => SERIAL
+    case 0x0009 => LOCAL_SERIAL
+    case 0x000A => LOCAL_ONE
+  }
 }

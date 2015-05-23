@@ -1,58 +1,14 @@
 package arimitsu.sf.cassandrakka.cql
 
-import java.net.{InetSocketAddress, InetAddress}
+import java.net.{InetAddress, InetSocketAddress}
+import java.nio.ByteBuffer
+import java.nio.charset.Charset
 
-/**
-    [int]          A 4 bytes integer
-    [long]         A 8 bytes integer
-    [short]        A 2 bytes unsigned integer
-    [string]       A [short] n, followed by n bytes representing an UTF-8 string.
-    [long string]  An [int] n, followed by n bytes representing an UTF-8 string.
-    [uuid]         A 16 bytes long uuid.
-    [string list]  A [short] n, followed by n [string].
-    [bytes]        A [int] n, followed by n bytes if n >= 0. If n < 0,
-                   no byte should follow and the value represented is `null`.
-    [value]        A [int] n, followed by n bytes if n >= 0.
-                   If n == -1 no byte should follow and the value represented is `null`.
-                   If n == -2 no byte should follow and the value represented is
-                   `not set` not resulting in any change to the existing value.
-                   n < -2 is an invalid value and results in an error.
-    [short bytes]  A [short] n, followed by n bytes if n >= 0.
-    [option]       A pair of <id><value> where <id> is a [short] representing
-                   the option id and <value> depends on that option (and can be
-                   of size 0). The supported id (and the corresponding <value>)
-                   will be described when this is used.
-    [option list]  A [short] n, followed by n [option].
-    [inet]         An address (ip and port) to a node. It consists of one
-                   [byte] n, that represents the address size, followed by n
-                   [byte] representing the IP address (in practice n can only be
-                   either 4 (IPv4) or 16 (IPv6)), following by one [int]
-                   representing the port.
-    [consistency]  A consistency level specification. This is a [short]
-                   representing a consistency level with the following
-                   correspondance:
-                     0x0000    ANY
-                     0x0001    ONE
-                     0x0002    TWO
-                     0x0003    THREE
-                     0x0004    QUORUM
-                     0x0005    ALL
-                     0x0006    LOCAL_QUORUM
-                     0x0007    EACH_QUORUM
-                     0x0008    SERIAL
-                     0x0009    LOCAL_SERIAL
-                     0x000A    LOCAL_ONE
-
-    [string map]      A [short] n, followed by n pair <k><v> where <k> and <v>
-                      are [string].
-    [string multimap] A [short] n, followed by n pair <k><v> where <k> is a
-                      [string] and <v> is a [string list].
-    [bytes map]       A [short] n, followed by n pair <k><v> where <k> is a
-                      [string] and <v> is a [bytes].
- */
+import arimitsu.sf.cassandrakka.cql.notations.Consistencies
 
 sealed abstract class Notation(value: Any)
 object Notations {
+  private val `UTF-8` = Charset.forName("UTF-8")
   case class INT(value: Int) extends Notation(value)
   case class LONG(value: Long) extends Notation(value)
   case class SHORT(value: Short) extends Notation(value)
@@ -65,28 +21,104 @@ object Notations {
   case object NOT_SET
   case class SHORT_BYTES(value: Array[Byte]) extends Notation(value)
   case class OPTION(id: SHORT, value: Option[Notation]) extends Notation(value)
-  case class OPTION_LIST(value: List[OPTION]) extends Notation(value)
+  case class OPTION_LIST(length: SHORT, value: List[OPTION]) extends Notation(value)
   case class INET(value: InetSocketAddress) extends Notation(value)
   case class CONSISTENCY(value: notations.Consistency) extends Notation(value)
   case class STRING_MAP(value: Map[STRING, STRING]) extends Notation(value)
   case class STRING_MULTIMAP(value: Map[STRING, STRING_LIST]) extends Notation(value)
   case class BYTES_MAP(value: Map[STRING, BYTES]) extends Notation(value)
 
-  def parseINT (bytes: Array[Byte]): INT = ???
-  def parseLONG (bytes: Array[Byte]): LONG = ???
-  def parseSHORT (bytes: Array[Byte]): SHORT = ???
-  def parseSTRING (bytes: Array[Byte]): STRING = ???
-  def parseLONG_STRING (bytes: Array[Byte]): LONG_STRING = ???
-  def parseUUID (bytes: Array[Byte]): UUID = ???
-  def parseSTRING_LIST (bytes: Array[Byte]): STRING_LIST = ???
-  def parseBYTES (bytes: Array[Byte]): BYTES = ???
-  def parseVALUE (bytes: Array[Byte]): VALUE = ???
-  def parseSHORT_BYTES (bytes: Array[Byte]): SHORT_BYTES = ???
-  def parseOPTION (bytes: Array[Byte]): OPTION = ???
-  def parseOPTION_LIST (bytes: Array[Byte]): OPTION_LIST = ???
-  def parseINET (bytes: Array[Byte]): INET = ???
-  def parseCONSISTENCY (bytes: Array[Byte]): CONSISTENCY = ???
-  def parseSTRING_MAP (bytes: Array[Byte]): STRING_MAP = ???
-  def parseSTRING_MULTIMAP (bytes: Array[Byte]): STRING_MULTIMAP = ???
-  def parseBYTES_MAP (bytes: Array[Byte]): BYTES_MAP = ???
+  def parseINT (buffer: ByteBuffer): INT = INT(buffer.getInt)
+  def parseLONG (buffer: ByteBuffer): LONG = LONG(buffer.getLong)
+  def parseSHORT (buffer: ByteBuffer): SHORT = SHORT(buffer.getShort)
+  def parseSTRING (buffer: ByteBuffer): STRING = {
+    val length = parseSHORT(buffer).value
+    val bytes = new Array[Byte](length)
+    buffer.get(bytes)
+    STRING(new String(bytes, `UTF-8`))
+  }
+  def parseLONG_STRING (buffer: ByteBuffer): LONG_STRING = {
+    val length = parseINT(buffer).value
+    val bytes = new Array[Byte](length)
+    buffer.get(bytes)
+    LONG_STRING(new String(bytes, `UTF-8`))
+  }
+  private val UUID_CONSTRUCTOR = {
+    val c = classOf[java.util.UUID].getDeclaredConstructor(classOf[Array[Byte]])
+    c.setAccessible(true)
+    c
+  }
+  def parseUUID (buffer: ByteBuffer): UUID = {
+    val bytes = new Array[Byte](16)
+    buffer.get(bytes)
+    UUID(UUID_CONSTRUCTOR.newInstance(bytes))
+  }
+  def parseSTRING_LIST (buffer: ByteBuffer): STRING_LIST = {
+    val length = parseSHORT(buffer).value
+    STRING_LIST((0 until length).map{
+      _ => parseSTRING(buffer)
+    }.toList)
+  }
+  def parseBYTES (buffer: ByteBuffer): BYTES = {
+    val length = parseINT(buffer)
+    length.value match {
+      case i if i < 0 => BYTES(None)
+      case i =>
+        val bytes = new Array[Byte](i)
+        buffer.get(bytes)
+        BYTES(Option(bytes))
+    }
+  }
+  def parseVALUE (buffer: ByteBuffer): VALUE = {
+    val length = buffer.getInt
+    length match {
+      case i if i == -1 => VALUE(Right(None))
+      case i if i == -2 => VALUE(Left(NOT_SET))
+      case i =>
+        val bytes = new Array[Byte](i)
+        buffer.get(bytes)
+        VALUE(Right(Option(bytes)))
+    }
+  }
+  def parseSHORT_BYTES (buffer: ByteBuffer): SHORT_BYTES = {
+    val length = buffer.getShort
+    val bytes = new Array[Byte](length)
+    buffer.get(bytes)
+    SHORT_BYTES(bytes)
+  }
+  def parseOPTION (buffer: ByteBuffer): OPTION = {
+    val id = parseSHORT(buffer)
+    OPTION(id, Option(parseOPTION(buffer)))
+  }
+  def parseOPTION_LIST (buffer: ByteBuffer): OPTION_LIST = {
+    val length = parseSHORT(buffer)
+    OPTION_LIST(length, (0 until length.value).map{
+      _ => parseOPTION(buffer)
+    }.toList)
+  }
+  def parseINET (buffer: ByteBuffer): INET = {
+    val length = buffer.get().toInt
+    val bytes = new Array[Byte](length)
+    buffer.get(bytes)
+    val port = parseINT(buffer)
+    INET(new InetSocketAddress(InetAddress.getByAddress(bytes), port)) // FIXME
+  }
+  def parseCONSISTENCY (buffer: ByteBuffer): CONSISTENCY = {
+    CONSISTENCY(Consistencies.fromShorts(parseSHORT(buffer).value))
+  }
+  def parseSTRING_MAP (buffer: ByteBuffer): STRING_MAP = {
+    STRING_MAP({
+      val length = parseSHORT(buffer).value
+      (0 until length).map{
+        _ => parseSTRING(buffer) -> parseSTRING(buffer)
+      }.toMap
+    })
+  }
+  def parseSTRING_MULTIMAP (buffer: ByteBuffer): STRING_MULTIMAP = {
+    STRING_MULTIMAP(// FIXME
+    )
+  }
+  def parseBYTES_MAP (buffer: ByteBuffer): BYTES_MAP = {
+    val length = buffer.getShort  // FIXME
+  }
 }
