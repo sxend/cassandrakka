@@ -5,6 +5,7 @@ import java.net.InetSocketAddress
 import akka.actor._
 import akka.util.Timeout
 import arimitsu.sf.cassandrakka.actors._
+import arimitsu.sf.cassandrakka.cql.CQLParser
 
 import scala.concurrent.ExecutionContext
 
@@ -23,4 +24,5 @@ trait Components {
     (remote: InetSocketAddress, number: Int, nodeManagerModule: ActorModule[NodeActor]) => new ActorModule[SessionActor](module => Props(classOf[SessionActor], components, module, remote, nodeManagerModule))
   val nodeManager =
     (remote: InetSocketAddress) => new ActorModule[NodeActor](module => Props(classOf[NodeActor], components, module, remote))
+  val cqlParser = () => new CQLParser()
 }

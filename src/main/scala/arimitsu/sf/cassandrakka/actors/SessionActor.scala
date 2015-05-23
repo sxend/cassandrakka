@@ -9,13 +9,14 @@ import akka.util.ByteString
 import arimitsu.sf.cassandrakka.ActorModule
 import arimitsu.sf.cassandrakka.ActorModule.Mapping
 import arimitsu.sf.cassandrakka.actors.NodeActor.Protocols._
+import arimitsu.sf.cassandrakka.cql.CQLParser
 
 class SessionActor(components: {
+  val cqlParser: () => CQLParser
 }, module: ActorModule[SessionActor], remote: InetSocketAddress, number: Int, nodeManagerModule: ActorModule[NodeActor]) extends Actor with ActorLogging {
-
   import arimitsu.sf.cassandrakka.actors.SessionActor.Protocols._
   import context.system
-
+  private val cqlParser = components.cqlParser()
   private var stream: Short = 0
   private var isStartup: Boolean = false
   private var connection: Option[ActorRef] = None

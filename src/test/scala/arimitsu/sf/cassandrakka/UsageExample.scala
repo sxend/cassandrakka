@@ -8,7 +8,7 @@ object UsageExample {
     new UsageExample(new {
       implicit val system = ActorSystem("example-system")
       val cassandrakka: Cassandrakka = Cassandrakka()
-    }).main()
+    }).run()
   }
 }
 
@@ -21,7 +21,7 @@ class UsageExample(components: {
   import components.system.dispatcher
   import components.cassandrakka._
 
-  def main() = {
+  def run() = {
     val future = withSession { implicit session =>
       prepare("select * from hello_world where id = '?'") {
         id =>
