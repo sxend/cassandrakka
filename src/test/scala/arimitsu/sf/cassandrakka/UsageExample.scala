@@ -20,22 +20,7 @@ class UsageExample(components: {
   import Directives._
   import components.cassandrakka._
   def main() = {
-    import ExecutionContext.Implicits.global
-    val future: Future[String] = withSession { implicit session =>
-      prepare("select * from test where id = ?") {
-        id => execute(id, "1") {
-          result =>
-            println(result)
-            "OK"
-        }
-      }
-    }.future
 
-    future.onComplete {
-      case Success(a) => a == "OK"
-      case _ => ()
-    }
+
   }
 }
-
-case class Test(id: String, value: String)

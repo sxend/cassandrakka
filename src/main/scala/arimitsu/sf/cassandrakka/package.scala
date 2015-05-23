@@ -6,9 +6,9 @@ import scala.concurrent.Future
 
 package object cassandrakka {
   type Op[A] = Session => Future[A]
-  type OpGenerator[T] = T => Op
+  type OpGenerator[T, A] = T => Op[A]
   type Directive0 = Directive[HNil]
-  type Directive1[T] = Directive1[T :: HNil]
+  type Directive1[T] = Directive[T :: HNil]
 
   trait HListable[T] {
     type Out <: HList

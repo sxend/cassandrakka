@@ -7,19 +7,26 @@ import scala.concurrent.Future
 
 trait PrepareDirective {
   self =>
-  def prepare(magnet: PrepareMagnet): Directive1[Byte] = magnet.get
+//  def prepare(magnet: PrepareMagnet): PrepareMagnet = magnet
 }
 
-object PrepareDirective extends PrepareDirective
-
-trait PrepareMagnet {
-  type Out <: HList
-  def get: Directive1[Out]
-}
-
-object PrepareMagnet {
-  implicit def apply[T](query: => String)(implicit hl: HListable[T], session: Session) = new Directive1[hl.Out] with PrepareMagnet {
-
-    }
-}
+//object PrepareDirective extends PrepareDirective
+//
+//trait PrepareMagnet {
+//  type Out <: HList
+//
+//  def apply(f: => Byte => Out): Future[Out]
+//}
+//
+//object PrepareMagnet {
+//
+//  implicit def apply[T](query: => String)(implicit hl: HListable[T], session: Session) = new Directive1[hl.Out] with PrepareMagnet {
+//      import session.ec
+//      type Out = hl.Out
+//
+//    override def apply(f: => (Byte) => Out): Future[Out] = {
+//      session.prepare(query).map(id => f(id))
+//    }
+//  }
+//}
 
