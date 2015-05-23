@@ -14,7 +14,7 @@ import scala.concurrent.Future
 class NodeActor(components: {
   val defaultTimeout: Timeout
   val configurationActor: ActorModule[ConfigurationActor]
-  val connectionActor: (InetSocketAddress, Int, ActorModule[NodeActor]) => ActorModule[ConnectionActor]
+  val sessionActor: (InetSocketAddress, Int, ActorModule[NodeActor]) => ActorModule[ConnectionActor]
 }, module: ActorModule[NodeActor], remote: InetSocketAddress) extends Actor with ActorLogging {
   implicit val timeout = components.defaultTimeout
   import context.dispatcher
@@ -28,7 +28,7 @@ class NodeActor(components: {
   def receive = {
     case ConnectAll => connectAll()
     case Connect(number) => connect(number)
-    case AddConnection(id, connection) =>
+    case AddSession(id, connection) =>
       connections.put(id, connection)
       Future(connection).pipeTo(sender())
     case message@Stopped(stoppedRemote, number) if remote.getHostString == stoppedRemote.getHostString =>
@@ -47,9 +47,8 @@ class NodeActor(components: {
   }
 
   private def connect(number: Int) = {
-    val connection = components.connectionActor(remote, number, module)
-    val session = components.sessionActor(connection)
-    context.self ! AddConnection(remote.getHostString + number, connection)
+    val session = components.sessionActor(remote, number, module)
+    context.self ! AddSession(remote.getHostString + number, session)
   }
 }
 
@@ -61,7 +60,7 @@ object NodeActor {
 
     case class Connect(number: Int)
 
-    case class AddConnection(id: String, connection: ActorModule[ConnectionActor])
+    case class AddSession(id: String, connection: ActorModule[ConnectionActor])
 
     case class Stopped(stoppedRemote: InetSocketAddress, number: Int)
 
