@@ -21,7 +21,7 @@ class NodeActor(components: {
 
   val configurationActor = components.configurationActor
 
-  import arimitsu.sf.cassandrakka.actors.NodeActor.Protocol._
+  import arimitsu.sf.cassandrakka.actors.NodeActor.Protocols._
 
   private val connections = mutable.Map[String, ActorModule[ConnectionActor]]()
 
@@ -54,7 +54,7 @@ class NodeActor(components: {
 
 object NodeActor {
 
-  object Protocol {
+  object Protocols {
 
     case object ConnectAll
 

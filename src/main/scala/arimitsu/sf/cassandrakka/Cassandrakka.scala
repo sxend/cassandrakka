@@ -12,7 +12,7 @@ import scala.concurrent.Future
 
 object Cassandrakka {
 
-  import ClusterActor.Protocol._
+  import ClusterActor.Protocols._
 
   def apply(config: Option[Config] = None)(implicit system: ActorSystem): Cassandrakka = {
     val _system = system

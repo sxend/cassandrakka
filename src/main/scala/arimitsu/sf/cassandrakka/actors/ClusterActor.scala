@@ -5,7 +5,7 @@ import java.net.InetSocketAddress
 import akka.actor.{Actor, ActorLogging}
 import akka.util.Timeout
 import arimitsu.sf.cassandrakka.ActorModule
-import arimitsu.sf.cassandrakka.actors.ClusterActor.Protocol._
+import arimitsu.sf.cassandrakka.actors.ClusterActor.Protocols._
 import arimitsu.sf.cassandrakka.actors.ConfigurationActor.Protocols._
 
 import scala.collection.JavaConversions._
@@ -46,7 +46,7 @@ class ClusterActor(components: {
 
 object ClusterActor {
 
-  object Protocol {
+  object Protocols {
 
     case object GetSession
 
