@@ -9,9 +9,10 @@ trait PrepareDirective {
   self =>
 //  def prepare(magnet: PrepareMagnet): PrepareMagnet = magnet
   def prepare(query: => String): PrepareMagnet = query
-  abstract implicit class PrepareMagnet(query: => String) {
+  implicit class PrepareMagnet(query: => String) {
     def apply[A](f: => Byte => A)(implicit session: Session): Future[A] = {
-      session !
+      import session.ec
+      Future("1".getBytes.head).map(f)
     }
   }
 }
