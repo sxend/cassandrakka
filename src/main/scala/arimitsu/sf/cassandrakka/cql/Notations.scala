@@ -55,14 +55,14 @@ object Notations {
 
   def parseSTRING(buffer: ByteBuffer): STRING = {
     val length = parseSHORT(buffer).value
-    val bytes = new Array[Byte](length)
+    val bytes = allocate(length)
     buffer.get(bytes)
     STRING(new String(bytes, `UTF-8`))
   }
 
   def parseLONG_STRING(buffer: ByteBuffer): LONG_STRING = {
     val length = parseINT(buffer).value
-    val bytes = new Array[Byte](length)
+    val bytes = allocate(length)
     buffer.get(bytes)
     LONG_STRING(new String(bytes, `UTF-8`))
   }
@@ -74,7 +74,7 @@ object Notations {
   }
 
   def parseUUID(buffer: ByteBuffer): UUID = {
-    val bytes = new Array[Byte](16)
+    val bytes = allocate(16)
     buffer.get(bytes)
     UUID(UUID_CONSTRUCTOR.newInstance(bytes))
   }
@@ -91,7 +91,7 @@ object Notations {
     length.value match {
       case i if i < 0 => BYTES(None)
       case i =>
-        val bytes = new Array[Byte](i)
+        val bytes = allocate(i)
         buffer.get(bytes)
         BYTES(Option(bytes))
     }
@@ -103,7 +103,7 @@ object Notations {
       case i if i == -1 => VALUE(Right(None))
       case i if i == -2 => VALUE(Left(NOT_SET))
       case i =>
-        val bytes = new Array[Byte](i)
+        val bytes = allocate(i)
         buffer.get(bytes)
         VALUE(Right(Option(bytes)))
     }
@@ -111,7 +111,7 @@ object Notations {
 
   def parseSHORT_BYTES(buffer: ByteBuffer): SHORT_BYTES = {
     val length = parseSHORT(buffer).value
-    val bytes = new Array[Byte](length)
+    val bytes = allocate(length)
     buffer.get(bytes)
     SHORT_BYTES(bytes)
   }
@@ -130,7 +130,7 @@ object Notations {
 
   def parseINET(buffer: ByteBuffer): INET = {
     val length = parseINT(buffer).value
-    val bytes = new Array[Byte](length)
+    val bytes = allocate(length)
     buffer.get(bytes)
     val port = parseINT(buffer)
     INET(new InetSocketAddress(InetAddress.getByAddress(bytes), port.value)) // FIXME
@@ -160,4 +160,5 @@ object Notations {
       _ => parseSTRING(buffer) -> parseBYTES(buffer)
     }.toMap)
   }
+  private def allocate(length: Int): Array[Byte] = new Array[Byte](length)
 }
