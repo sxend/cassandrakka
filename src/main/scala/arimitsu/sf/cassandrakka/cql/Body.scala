@@ -1,5 +1,7 @@
 package arimitsu.sf.cassandrakka.cql
 
+import java.nio.ByteBuffer
+
 import arimitsu.sf.cassandrakka.cql.Compressions.Raw
 
 case class Body(bytes: Array[Byte], length: Int, compression: Compression = Raw, compressed: Boolean = false){
@@ -10,11 +12,6 @@ case class Body(bytes: Array[Byte], length: Int, compression: Compression = Raw,
   def decompress(compression: Compression): Body = compressed match {
     case true => Body(compression.decompress(this.bytes, length), length, compressed = false)
     case false => this
-  }
-
-  def toNotation: Notation = compressed match {
-    case true => Body(compression.decompress(bytes), length).toNotation
-    case false => Notations.fromBytes(bytes)
   }
 
 }

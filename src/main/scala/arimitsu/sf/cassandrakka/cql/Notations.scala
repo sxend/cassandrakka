@@ -70,7 +70,7 @@ object Notations {
     }
   }
   def parseVALUE (buffer: ByteBuffer): VALUE = {
-    val length = buffer.getInt
+    val length = parseINT(buffer).value
     length match {
       case i if i == -1 => VALUE(Right(None))
       case i if i == -2 => VALUE(Left(NOT_SET))
@@ -81,7 +81,7 @@ object Notations {
     }
   }
   def parseSHORT_BYTES (buffer: ByteBuffer): SHORT_BYTES = {
-    val length = buffer.getShort
+    val length = parseSHORT(buffer).value
     val bytes = new Array[Byte](length)
     buffer.get(bytes)
     SHORT_BYTES(bytes)
@@ -97,28 +97,31 @@ object Notations {
     }.toList)
   }
   def parseINET (buffer: ByteBuffer): INET = {
-    val length = buffer.get().toInt
+    val length = parseINT(buffer).value
     val bytes = new Array[Byte](length)
     buffer.get(bytes)
     val port = parseINT(buffer)
-    INET(new InetSocketAddress(InetAddress.getByAddress(bytes), port)) // FIXME
+    INET(new InetSocketAddress(InetAddress.getByAddress(bytes), port.value)) // FIXME
   }
   def parseCONSISTENCY (buffer: ByteBuffer): CONSISTENCY = {
     CONSISTENCY(Consistencies.fromShorts(parseSHORT(buffer).value))
   }
   def parseSTRING_MAP (buffer: ByteBuffer): STRING_MAP = {
-    STRING_MAP({
-      val length = parseSHORT(buffer).value
-      (0 until length).map{
-        _ => parseSTRING(buffer) -> parseSTRING(buffer)
-      }.toMap
-    })
+    val length = parseSHORT(buffer).value
+    STRING_MAP((0 until length).map{
+      _ => parseSTRING(buffer) -> parseSTRING(buffer)
+    }.toMap)
   }
   def parseSTRING_MULTIMAP (buffer: ByteBuffer): STRING_MULTIMAP = {
-    STRING_MULTIMAP(// FIXME
-    )
+    val length = parseSHORT(buffer).value
+    STRING_MULTIMAP((0 until length).map {
+      _ => parseSTRING(buffer) -> parseSTRING_LIST(buffer)
+    }.toMap)
   }
   def parseBYTES_MAP (buffer: ByteBuffer): BYTES_MAP = {
-    val length = buffer.getShort  // FIXME
+    val length = parseSHORT(buffer).value
+    BYTES_MAP((0 until length).map {
+      _ => parseSTRING(buffer) -> parseBYTES(buffer)
+    }.toMap)
   }
 }
