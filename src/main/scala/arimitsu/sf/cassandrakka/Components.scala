@@ -17,7 +17,7 @@ trait Components {
   implicit val components = self
   implicit val system: ActorSystem
   val systemEC: ExecutionContext = system.dispatcher
-  val defaultTimeout: Timeout = 1 second
+  implicit val defaultTimeout: Timeout = 1 second
   val configurationActor: ActorModule[ConfigurationActor] =
     new ActorModule[ConfigurationActor](module => Props(classOf[ConfigurationActor], components, module))
   val clusterActor: ActorModule[ClusterActor] =

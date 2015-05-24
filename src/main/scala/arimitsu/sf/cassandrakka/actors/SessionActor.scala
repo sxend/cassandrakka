@@ -75,8 +75,6 @@ class SessionActor(components: {
     case send: Send[_] =>
     case Received(data) =>
       val frame = Frame.parse(data.toByteBuffer, compression)
-      frame.body.
-      frame.header.stream.id
     case message => log.warning(s"Unhandled Message. message: $message, sender: ${sender().toString()}, self: ${self.toString()}")
   }
 
