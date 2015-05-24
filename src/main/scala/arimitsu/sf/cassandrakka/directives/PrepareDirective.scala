@@ -1,23 +1,25 @@
 package arimitsu.sf.cassandrakka.directives
 
-import shapeless._
 import arimitsu.sf.cassandrakka._
 
 import scala.concurrent.Future
 
 trait PrepareDirective {
   self =>
-//  def prepare(magnet: PrepareMagnet): PrepareMagnet = magnet
+  //  def prepare(magnet: PrepareMagnet): PrepareMagnet = magnet
   def prepare(query: => String): PrepareMagnet = query
+
   implicit class PrepareMagnet(query: => String) {
     def apply[A](f: => Byte => A)(implicit session: Session): Future[A] = {
       import session.ec
       Future("1".getBytes.head).map(f)
     }
   }
+
 }
 
 object PrepareDirective extends PrepareDirective
+
 //
 //trait PrepareMagnet {
 //  type Out <: HList

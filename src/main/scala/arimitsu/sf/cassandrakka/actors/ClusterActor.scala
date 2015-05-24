@@ -17,6 +17,7 @@ class ClusterActor(components: {
   val nodeManager: InetSocketAddress => ActorModule[NodeActor]
 }, module: ActorModule[ClusterActor]) extends Actor with ActorLogging {
   implicit val timeout = components.defaultTimeout
+
   import context.dispatcher
 
   private val configurationManager = components.configurationManager

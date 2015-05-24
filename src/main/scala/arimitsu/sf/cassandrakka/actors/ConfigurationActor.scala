@@ -35,7 +35,7 @@ object ConfigurationActor {
 
     implicit object WithValueResult extends Mapping[ConfigurationActor, WithValue, Config]
 
-    implicit object GetConfigMapping extends Mapping[ConfigurationActor, GetConfig.type , Config]
+    implicit object GetConfigMapping extends Mapping[ConfigurationActor, GetConfig.type, Config]
 
   }
 

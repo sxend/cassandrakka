@@ -17,6 +17,7 @@ class NodeActor(components: {
   val sessionActor: (InetSocketAddress, Int, ActorModule[NodeActor]) => ActorModule[SessionActor]
 }, module: ActorModule[NodeActor], remote: InetSocketAddress) extends Actor with ActorLogging {
   implicit val timeout = components.defaultTimeout
+
   import context.dispatcher
 
   val configurationActor = components.configurationActor

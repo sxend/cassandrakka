@@ -11,7 +11,9 @@ import scala.concurrent.ExecutionContext
 
 trait Components {
   self =>
+
   import scala.concurrent.duration._
+
   implicit val components = self
   implicit val system: ActorSystem
   val systemEC: ExecutionContext = system.dispatcher

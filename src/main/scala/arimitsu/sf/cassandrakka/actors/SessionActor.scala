@@ -14,15 +14,19 @@ import arimitsu.sf.cassandrakka.cql.CQLParser
 class SessionActor(components: {
   val cqlParser: () => CQLParser
 }, module: ActorModule[SessionActor], remote: InetSocketAddress, number: Int, nodeManagerModule: ActorModule[NodeActor]) extends Actor with ActorLogging {
+
   import arimitsu.sf.cassandrakka.actors.SessionActor.Protocols._
   import context.system
+
   private val cqlParser = components.cqlParser()
   private var stream: Short = 0
   private var isStartup: Boolean = false
   private var connection: Option[ActorRef] = None
+
   private def isConnected = connection.isDefined
+
   private def withConnection[A](message: A)(f: => ActorRef => Unit) = {
-    if(isConnected){
+    if (isConnected) {
       f(connection.get)
     } else {
       self ! message
