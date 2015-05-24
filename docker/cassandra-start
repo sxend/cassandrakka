@@ -1,0 +1,7 @@
+#!/bin/bash
+
+export CURRENT_IP=`hostname -i`
+
+envsubst < ${CASSANDRA_HOME}/conf/cassandra.yaml.template > ${CASSANDRA_HOME}/conf/cassandra.yaml
+
+${CASSANDRA_HOME}/bin/cassandra
