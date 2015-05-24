@@ -40,4 +40,9 @@ object Compressions {
     override def decompress(bytes: Array[Byte], length: Int = 0): Array[Byte] = bytes
   }
 
+  def valueOf(name: String): Compression = name.toLowerCase match {
+    case Snappy.name => Snappy
+    case LZ4.name => LZ4
+    case _ => Raw
+  }
 }
