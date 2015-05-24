@@ -1,6 +1,7 @@
 package arimitsu.sf.cassandrakka.directives
 
 import arimitsu.sf.cassandrakka._
+import arimitsu.sf.cassandrakka.cql.messages.Supported
 
 import scala.concurrent.Future
 
@@ -10,9 +11,8 @@ trait PrepareDirective {
   def prepare(query: => String): PrepareMagnet = query
 
   implicit class PrepareMagnet(query: => String) {
-    def apply[A](f: => Byte => A)(implicit session: Session): Future[A] = {
-      import session.ec
-      Future("1".getBytes.head).map(f)
+    def apply[A](f: => Supported => A)(implicit session: Session): Future[A] = {
+      ???
     }
   }
 

@@ -18,13 +18,13 @@ trait Components {
   implicit val system: ActorSystem
   val systemEC: ExecutionContext = system.dispatcher
   val defaultTimeout: Timeout = 1 second
-  val configurationManager: ActorModule[ConfigurationActor] =
+  val configurationActor: ActorModule[ConfigurationActor] =
     new ActorModule[ConfigurationActor](module => Props(classOf[ConfigurationActor], components, module))
   val clusterActor: ActorModule[ClusterActor] =
     new ActorModule[ClusterActor](module => Props(classOf[ClusterActor], components, module))
-  val connectionManager =
+  val connectionActor =
     (remote: InetSocketAddress, number: Int, nodeManagerModule: ActorModule[NodeActor]) => new ActorModule[SessionActor](module => Props(classOf[SessionActor], components, module, remote, nodeManagerModule))
-  val nodeManager =
+  val nodeActor =
     (remote: InetSocketAddress) => new ActorModule[NodeActor](module => Props(classOf[NodeActor], components, module, remote))
   val cqlParser = () => new CQLParser()
 }

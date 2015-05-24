@@ -8,10 +8,13 @@ import akka.io.{IO, Tcp}
 import akka.util.ByteString
 import arimitsu.sf.cassandrakka.ActorModule
 import arimitsu.sf.cassandrakka.ActorModule.Mapping
+import arimitsu.sf.cassandrakka.actors.ConfigurationActor.Protocols.GetCompression
 import arimitsu.sf.cassandrakka.actors.NodeActor.Protocols._
-import arimitsu.sf.cassandrakka.cql.{Body, OpCodes, OpCode, CQLParser}
+import arimitsu.sf.cassandrakka.cql.Compressions.Raw
+import arimitsu.sf.cassandrakka.cql._
 import akka.pattern.ask
 import akka.pattern.pipe
+import Notations._
 
 import scala.collection.mutable
 import scala.concurrent.Promise
@@ -24,10 +27,14 @@ class SessionActor(components: {
   import arimitsu.sf.cassandrakka.actors.SessionActor.Protocols._
   import context.system
   private val promises =  mutable.Map[Short, Promise[_]]()
-  private val cqlParser = components.cqlParser()
   private var stream: Short = 0
   private var isStartup: Boolean = false
   private var connection: Option[ActorRef] = None
+  private var compression: Compression = Raw
+
+  components.configurationActor.typedAsk(GetCompression).onSuccess{
+    case compression =>self ! SetCompression(compression)
+  }
 
   private def isConnected = connection.isDefined
 
@@ -55,6 +62,8 @@ class SessionActor(components: {
       connection = None
       connection.get ! Tcp.Close
       connect()
+    case SetCompression(comp) =>
+      compression = comp
     case req: Startup =>
     case req: AuthResponse =>
     case req: Options =>
@@ -65,6 +74,9 @@ class SessionActor(components: {
     case req: Register =>
     case send: Send[_] =>
     case Received(data) =>
+      val frame = Frame.parse(data.toByteBuffer, compression)
+      frame.body.
+      frame.header.stream.id
     case message => log.warning(s"Unhandled Message. message: $message, sender: ${sender().toString()}, self: ${self.toString()}")
   }
 
@@ -81,8 +93,9 @@ class SessionActor(components: {
 object SessionActor {
 
   object Protocols {
-    implicit def p[A]: Promise[A] = Promise[A]()
     case object ReConnect
+
+    case class SetCompression(compression: Compression)
 
     case class Send[A <: Responses](op: OpCode, body: Option[Body])(implicit val promise: Promise[A])
 
@@ -110,13 +123,13 @@ object SessionActor {
 
     case class Register() extends Requests
 
-    case class Error() extends Responses
+    case class Error(code: INT, message: STRING) extends Responses
 
     case class Ready() extends Responses
 
     case class Authenticate() extends Responses
 
-    case class Supported() extends Responses
+    case class Supported(value: STRING_MULTIMAP) extends Responses
 
     case class Result() extends Responses
 

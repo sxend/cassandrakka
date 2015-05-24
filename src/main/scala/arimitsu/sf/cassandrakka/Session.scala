@@ -1,12 +1,19 @@
 package arimitsu.sf.cassandrakka
 
-import scala.concurrent.ExecutionContext
+import akka.actor.ActorSystem
+import arimitsu.sf.cassandrakka.actors.SessionActor
+import arimitsu.sf.cassandrakka.actors.SessionActor.Protocols.Options
 
-trait Session {
-  implicit val ec: ExecutionContext
+import scala.concurrent.{Future, ExecutionContext}
 
-  //  def prepare[A](query: String): Future[Byte]
-  //
+abstract class Session(components: {
+  val system: ActorSystem
+}, sessionActor: ActorModule[SessionActor]){
+  import components.system.dispatcher
+
+  private[cassandrakka] def options() = {
+    sessionActor.typedAsk(Options())
+  }
+
   //  def execute(id: Byte, arg: Any*): Future[AnyRef]
 }
-

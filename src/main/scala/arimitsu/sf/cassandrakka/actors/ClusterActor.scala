@@ -4,12 +4,15 @@ import java.net.InetSocketAddress
 
 import akka.actor.{Actor, ActorLogging}
 import akka.util.Timeout
-import arimitsu.sf.cassandrakka.ActorModule
+import akka.pattern._
+import arimitsu.sf.cassandrakka.ActorModule.Mapping
+import arimitsu.sf.cassandrakka.{Session, ActorModule}
 import arimitsu.sf.cassandrakka.actors.ClusterActor.Protocols._
 import arimitsu.sf.cassandrakka.actors.ConfigurationActor.Protocols._
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable
+import scala.concurrent.Future
 
 class ClusterActor(components: {
   val defaultTimeout: Timeout
@@ -22,10 +25,18 @@ class ClusterActor(components: {
 
   private val configurationManager = components.configurationManager
   private val nodes = mutable.Map[String, ActorModule[NodeActor]]()
+  private var ring = Iterator.continually(nodes).flatten
 
   def receive = {
-    case AddNode(node) => nodes.put(node.toString, node)
+    case AddNode(node) =>
+      nodes.put(node.toString, node)
+      ring = Iterator.continually(nodes).flatten
+    case GetSession => getSession.mapTo[ActorModule[SessionActor]].pipeTo(sender())
     case message => log.warning(s"Unhandled Message. message: $message, sender: ${sender().toString()}, self: ${self.toString()}")
+  }
+
+  def getSession: Future[ActorModule[SessionActor]] = {
+    ring.next()._2.typedAsk(NodeActor.Protocols.GetSession)
   }
 
   def start() {
@@ -53,6 +64,7 @@ object ClusterActor {
 
     case class AddNode(remote: ActorModule[NodeActor])
 
+    implicit object GetSessionMapping extends Mapping[ClusterActor, GetSession.type , ActorModule[SessionActor]]
   }
 
 }

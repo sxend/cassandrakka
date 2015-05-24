@@ -6,6 +6,7 @@ import akka.actor.{Actor, ActorLogging}
 import akka.pattern._
 import akka.util.Timeout
 import arimitsu.sf.cassandrakka.ActorModule
+import arimitsu.sf.cassandrakka.ActorModule.Mapping
 import arimitsu.sf.cassandrakka.actors.ConfigurationActor.Protocols.GetConfig
 
 import scala.collection.mutable
@@ -25,12 +26,16 @@ class NodeActor(components: {
   import arimitsu.sf.cassandrakka.actors.NodeActor.Protocols._
 
   private val sessions = mutable.Map[String, ActorModule[SessionActor]]()
+  private var ring = Iterator.continually(sessions).flatten
 
   def receive = {
     case StartAllSession => startAllSession()
     case StartSession(number) => startSession(number)
+    case GetSession =>
+      Future(ring.next()._2).pipeTo(sender())
     case AddSession(id, session) =>
       sessions.put(id, session)
+      ring = Iterator.continually(sessions).flatten
       Future(session).pipeTo(sender())
     case message@Stopped(stoppedRemote, number) if remote.getHostString == stoppedRemote.getHostString =>
       log.warning(s"Connection Actor is Stopped. massage: $message, sender: ${sender().toString()}, self: ${self.toString()}")
@@ -64,6 +69,10 @@ object NodeActor {
     case class AddSession(id: String, connection: ActorModule[SessionActor])
 
     case class Stopped(stoppedRemote: InetSocketAddress, number: Int)
+
+    case object GetSession
+
+    implicit object GetSessionMapping extends Mapping[NodeActor, GetSession.type ,  ActorModule[SessionActor]]
 
   }
 
