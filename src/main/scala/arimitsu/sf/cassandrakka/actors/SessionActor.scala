@@ -9,15 +9,21 @@ import akka.util.ByteString
 import arimitsu.sf.cassandrakka.ActorModule
 import arimitsu.sf.cassandrakka.ActorModule.Mapping
 import arimitsu.sf.cassandrakka.actors.NodeActor.Protocols._
-import arimitsu.sf.cassandrakka.cql.CQLParser
+import arimitsu.sf.cassandrakka.cql.{Body, OpCodes, OpCode, CQLParser}
+import akka.pattern.ask
+import akka.pattern.pipe
+
+import scala.collection.mutable
+import scala.concurrent.Promise
 
 class SessionActor(components: {
+  val configurationActor: ActorModule[ConfigurationActor]
   val cqlParser: () => CQLParser
 }, module: ActorModule[SessionActor], remote: InetSocketAddress, number: Int, nodeManagerModule: ActorModule[NodeActor]) extends Actor with ActorLogging {
-
+  import context.dispatcher
   import arimitsu.sf.cassandrakka.actors.SessionActor.Protocols._
   import context.system
-
+  private val promises =  mutable.Map[Short, Promise[_]]()
   private val cqlParser = components.cqlParser()
   private var stream: Short = 0
   private var isStartup: Boolean = false
@@ -49,37 +55,40 @@ class SessionActor(components: {
       connection = None
       connection.get ! Tcp.Close
       connect()
-    case req@Startup =>
-
-    case req@AuthResponse =>
-    case req@Options =>
-    case req@Query =>
-    case req@Prepare =>
-    case req@Execute =>
-    case req@Batch =>
-    case req@Register =>
-
+    case req: Startup =>
+    case req: AuthResponse =>
+    case req: Options =>
+    case req: Query =>
+    case req: Prepare =>
+    case req: Execute =>
+    case req: Batch =>
+    case req: Register =>
+    case send: Send[_] =>
+    case Received(data) =>
     case message => log.warning(s"Unhandled Message. message: $message, sender: ${sender().toString()}, self: ${self.toString()}")
   }
 
   private def connect() = {
     IO(Tcp) ! Tcp.Connect(remoteAddress = remote)
   }
-
+  private def nextStreamId() = {
+    val next = stream = (stream + 1).toShort
+    next
+  }
   connect()
 }
 
 object SessionActor {
 
   object Protocols {
-
+    implicit def p[A]: Promise[A] = Promise[A]()
     case object ReConnect
 
-    case class Send(data: ByteString)
+    case class Send[A <: Responses](op: OpCode, body: Option[Body])(implicit val promise: Promise[A])
 
     sealed trait Operation
 
-    sealed trait Requests extends Operation
+    sealed abstract class Requests() extends Operation
 
     sealed trait Responses extends Operation
 
@@ -87,7 +96,7 @@ object SessionActor {
 
     case class Startup() extends Requests
 
-    case class AuthResponse() extends Requests
+    case class AuthResponse(token: Array[Byte]) extends Requests
 
     case class Options() extends Requests
 

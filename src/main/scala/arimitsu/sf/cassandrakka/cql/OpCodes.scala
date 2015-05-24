@@ -36,4 +36,22 @@ object OpCodes {
 
   case object AUTH_SUCCESS extends OpCode(0x10.toByte)
 
+  def valueOf(code: Byte): OpCode = code match {
+    case ERROR.code => ERROR
+    case STARTUP.code => STARTUP
+    case READY.code => READY
+    case AUTHENTICATE.code => AUTHENTICATE
+    case OPTIONS.code => OPTIONS
+    case SUPPORTED.code => SUPPORTED
+    case QUERY.code => QUERY
+    case RESULT.code => RESULT
+    case PREPARE.code => PREPARE
+    case EXECUTE.code => EXECUTE
+    case REGISTER.code => REGISTER
+    case EVENT.code => EVENT
+    case BATCH.code => BATCH
+    case AUTH_CHALLENGE.code => AUTH_CHALLENGE
+    case AUTH_RESPONSE.code => AUTH_RESPONSE
+    case AUTH_SUCCESS.code => AUTH_SUCCESS
+  }
 }

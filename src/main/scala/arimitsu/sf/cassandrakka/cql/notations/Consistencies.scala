@@ -27,16 +27,16 @@ object Consistencies {
   case object LOCAL_ONE extends Consistency(0x000A.toShort)
 
   def fromShorts(s: Short): Consistency = s match {
-    case 0x0000 => ANY
-    case 0x0001 => ONE
-    case 0x0002 => TWO
-    case 0x0003 => THREE
-    case 0x0004 => QUORUM
-    case 0x0005 => ALL
-    case 0x0006 => LOCAL_QUORUM
-    case 0x0007 => EACH_QUORUM
-    case 0x0008 => SERIAL
-    case 0x0009 => LOCAL_SERIAL
-    case 0x000A => LOCAL_ONE
+    case ANY.level => ANY
+    case ONE.level => ONE
+    case TWO.level => TWO
+    case THREE.level => THREE
+    case QUORUM.level => QUORUM
+    case ALL.level => ALL
+    case LOCAL_QUORUM.level => LOCAL_QUORUM
+    case EACH_QUORUM.level => EACH_QUORUM
+    case SERIAL.level => SERIAL
+    case LOCAL_SERIAL.level => LOCAL_SERIAL
+    case LOCAL_ONE.level => LOCAL_ONE
   }
 }
