@@ -2,7 +2,7 @@ package arimitsu.sf.cassandrakka.actors
 
 import akka.actor.{Actor, ActorLogging}
 import arimitsu.sf.cassandrakka.ActorModule
-import arimitsu.sf.cassandrakka.ActorModule.Mapping
+import arimitsu.sf.cassandrakka.ActorModule._
 import arimitsu.sf.cassandrakka.cql.{Compressions, Compression}
 import com.typesafe.config.{Config, ConfigFactory, ConfigValue}
 import akka.pattern._
@@ -21,9 +21,10 @@ class ConfigurationActor(components: {
   def receive = {
     case GetConfig => configuration
     case GetCompression =>
-      Future{
+      import ConfigurationActor.Protocols._
+      Future {
         Compressions.valueOf(configuration.getString("compression"))
-      }.pipeTo(sender())
+      }.typedPipeTo(sender())
     case GetGlobalTimeout =>
       Future(configuration.getInt("global-timeout")).pipeTo(sender())
     case WithValue(name, value) =>
