@@ -17,12 +17,13 @@ class ActorModule[A <: Actor](moduleToProps: => (ActorModule[A]) => Props, name:
 object ActorModule {
 
   trait Mapping[M <: Actor, A, B] {
-  }
-  implicit class TypedPipeTo[M <: Actor, A, B](b: Future[B])(implicit mapping: Mapping[M, A, B]){
-    import akka.pattern.pipe
+    implicit class TypedPipeTo(b: Future[B]){
+      import akka.pattern.pipe
 
-    def typedPipeTo(sender: ActorRef)(implicit ec: ExecutionContext): Future[B] = b.pipeTo(sender)
+      def typedPipeTo(sender: ActorRef)(implicit ec: ExecutionContext): Future[B] = b.pipeTo(sender)
+    }
   }
+
   implicit class TypedAsk[M <: Actor](module: ActorModule[M]) {
     import module.timeout
 

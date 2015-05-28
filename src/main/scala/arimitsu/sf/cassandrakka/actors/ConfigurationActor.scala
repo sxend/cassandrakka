@@ -17,16 +17,16 @@ class ConfigurationActor(components: {
   import context.dispatcher
 
   var configuration: Config = components.defaultConfiguration.getOrElse(ConfigFactory.load.getConfig("arimitsu.sf.cassandrakka"))
-
+  import arimitsu.sf.cassandrakka.actors.ConfigurationActor.Protocols._
   def receive = {
     case GetConfig => configuration
-    case GetCompression =>
-      import ConfigurationActor.Protocols._
+    case message: GetCompression =>
+      import message._
       Future {
         Compressions.valueOf(configuration.getString("compression"))
       }.typedPipeTo(sender())
     case GetGlobalTimeout =>
-      Future(configuration.getInt("global-timeout")).pipeTo(sender())
+      Future(configuration.getInt("global-timeout")).typedPipeTo(sender())
     case WithValue(name, value) =>
       val after = configuration = configuration.withValue(name, value)
       Future(after)
@@ -40,19 +40,17 @@ object ConfigurationActor {
 
     case class WithValue(name: String, value: ConfigValue)
 
-    case object GetConfig
+    case class GetConfig()
 
-    case object GetGlobalTimeout
+    case class GetGlobalTimeout()
 
-    case object GetCompression
+    case class GetCompression() extends Mapping[ConfigurationActor, GetCompression, Compression]
 
     implicit object WithValueResult extends Mapping[ConfigurationActor, WithValue, Config]
 
-    implicit object GetConfigMapping extends Mapping[ConfigurationActor, GetConfig.type, Config]
+    implicit object GetConfigMapping extends Mapping[ConfigurationActor, GetConfig, Config]
 
-    implicit object GetGlobalTimeoutMapping extends Mapping[ConfigurationActor, GetGlobalTimeout.type, Int]
-
-    implicit object GetCompressionMapping extends Mapping[ConfigurationActor, GetCompression.type, Compression]
+    implicit object GetGlobalTimeoutMapping extends Mapping[ConfigurationActor, GetGlobalTimeout, Int]
 
   }
 
