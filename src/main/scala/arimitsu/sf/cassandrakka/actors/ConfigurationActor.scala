@@ -20,16 +20,19 @@ class ConfigurationActor(components: {
   import arimitsu.sf.cassandrakka.actors.ConfigurationActor.Protocols._
   def receive = {
     case GetConfig => configuration
-    case message: GetCompression =>
-      import message._
+    case message: GetCompression => Mapping(message) {
       Future {
         Compressions.valueOf(configuration.getString("compression"))
+      }
+    }.typedPipeTo(sender())
+    case message: GetGlobalTimeout => Mapping(message){
+      Future(configuration.getInt("global-timeout"))
       }.typedPipeTo(sender())
-    case GetGlobalTimeout =>
-      Future(configuration.getInt("global-timeout")).typedPipeTo(sender())
-    case WithValue(name, value) =>
-      val after = configuration = configuration.withValue(name, value)
-      Future(after)
+    case message: WithValue => Mapping(message) {
+      import message._
+      configuration = configuration.withValue(name, value)
+      Future(configuration)
+    }.typedPipeTo(sender())
     case message => log.warning(s"Unhandled Message. message: $message, sender: ${sender().toString()}, self: ${self.toString()}")
   }
 }
@@ -44,13 +47,15 @@ object ConfigurationActor {
 
     case class GetGlobalTimeout()
 
-    case class GetCompression() extends Mapping[ConfigurationActor, GetCompression, Compression]
+    case class GetCompression()
 
-    implicit object WithValueResult extends Mapping[ConfigurationActor, WithValue, Config]
+    implicit object GetCompression extends Mapping[ConfigurationActor, GetCompression, Compression]
 
-    implicit object GetConfigMapping extends Mapping[ConfigurationActor, GetConfig, Config]
+    implicit object WithValue extends Mapping[ConfigurationActor, WithValue, Config]
 
-    implicit object GetGlobalTimeoutMapping extends Mapping[ConfigurationActor, GetGlobalTimeout, Int]
+    implicit object GetConfig extends Mapping[ConfigurationActor, GetConfig, Config]
+
+    implicit object GetGlobalTimeout extends Mapping[ConfigurationActor, GetGlobalTimeout, Int]
 
   }
 

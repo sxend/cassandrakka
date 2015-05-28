@@ -44,7 +44,7 @@ class NodeActor(components: {
   }
 
   def startAllSession() = {
-    configurationActor.typedAsk(GetConfig).map {
+    configurationActor.typedAsk(GetConfig()).map {
       config =>
         (1 until config.getInt("connection-per-node")).foreach {
           number => startSession(number)

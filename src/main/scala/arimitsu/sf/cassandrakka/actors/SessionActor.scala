@@ -32,7 +32,7 @@ class SessionActor(components: {
   private var connection: Option[ActorRef] = None
   private var compression: Compression = Raw
 
-  components.configurationActor.typedAsk(GetCompression).onSuccess{
+  components.configurationActor.typedAsk(GetCompression()).onSuccess{
     case compression =>self ! SetCompression(compression)
   }
 

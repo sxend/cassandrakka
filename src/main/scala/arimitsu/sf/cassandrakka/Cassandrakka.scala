@@ -25,9 +25,9 @@ object Cassandrakka {
 
       override def withSession[A](op: => Op[A]): Future[A] = {
         implicit val t = Timeout(1000, TimeUnit.MICROSECONDS)
-        implicit val a = GetGlobalTimeout
+        import arimitsu.sf.cassandrakka.actors.ConfigurationActor.Protocols._
         val future = for {
-          timeout <- components.configurationActor.typedAsk(GetGlobalTimeout)
+          timeout <- components.configurationActor.typedAsk(GetGlobalTimeout())
           session <- components.clusterActor.typedAsk(GetSession)
         } yield (Timeout(timeout, TimeUnit.MICROSECONDS), session)
         future flatMap {

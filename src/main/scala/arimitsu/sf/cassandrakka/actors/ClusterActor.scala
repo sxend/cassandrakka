@@ -40,7 +40,7 @@ class ClusterActor(components: {
   }
 
   def start() {
-    configurationManager.typedAsk(GetConfig).map {
+    configurationManager.typedAsk(GetConfig()).map {
       config =>
         config.getConfigList("nodes").foreach {
           nodeConfig =>
