@@ -18,19 +18,24 @@ object ActorModule {
 
   trait Mapping[M <: Actor, A, B] {
   }
-  implicit object Mapping {
+  object Mapping{
+    def apply[M <: Actor, A, B]: Mapping[M, A, B] = new Mapping[M, A, B] {}
+  }
 
-    def apply[M <: Actor, A, B](a: A)(f: => Future[B])(implicit mapping: Mapping[M, A, B]) = {
-      class TypedPipeTo(b: Future[B])(implicit val a: A, val mapping: Mapping[M, A, B]){
-        import akka.pattern.pipe
+  implicit class Reply[M <: Actor, A, B, R <: Mapping[M, A, B]](a: A){
 
-        def typedPipeTo(sender: ActorRef)(implicit ec: ExecutionContext, mapping: Mapping[M, A, B]): Future[B] = b.pipeTo(sender)
-      }
-      new TypedPipeTo(f)(a, mapping)
-    }
+    def reply(b: => Future[B])(implicit mapping: Mapping[M, A, B]) : TypedPipeTo[M, A, B] = b
+  }
+
+  implicit class TypedPipeTo[M <: Actor, A, B](b: Future[B]) {
+
+    import akka.pattern.pipe
+
+    def typedPipeTo(sender: ActorRef)(implicit ec: ExecutionContext, mapping: Mapping[M, A, B]): Future[B] = b.pipeTo(sender)
   }
 
   implicit class TypedAsk[M <: Actor](module: ActorModule[M]) {
+
     import module.timeout
 
     import akka.pattern.ask

@@ -17,22 +17,26 @@ class ConfigurationActor(components: {
   import context.dispatcher
 
   var configuration: Config = components.defaultConfiguration.getOrElse(ConfigFactory.load.getConfig("arimitsu.sf.cassandrakka"))
-  import arimitsu.sf.cassandrakka.actors.ConfigurationActor.Protocols._
+  import ConfigurationActor.Protocols._
   def receive = {
     case GetConfig => configuration
-    case message: GetCompression => Mapping(message) {
-      Future {
+    case message: GetCompression =>
+      import GetCompressions._
+      message.reply(Future {
         Compressions.valueOf(configuration.getString("compression"))
-      }
-    }.typedPipeTo(sender())
-    case message: GetGlobalTimeout => Mapping(message){
-      Future(configuration.getInt("global-timeout"))
-      }.typedPipeTo(sender())
-    case message: WithValue => Mapping(message) {
-      import message._
+      }).typedPipeTo(sender())
+    case message: GetGlobalTimeout =>
+      import GetGlobalTimeouts._
+    message.reply(Future {
+      configuration.getInt("global-timeout")
+    }).typedPipeTo(sender())
+    case message: WithValue =>
+      import WithValues._
+      message.reply(Future {
+        import message._
       configuration = configuration.withValue(name, value)
-      Future(configuration)
-    }.typedPipeTo(sender())
+      configuration
+    }).typedPipeTo(sender())
     case message => log.warning(s"Unhandled Message. message: $message, sender: ${sender().toString()}, self: ${self.toString()}")
   }
 }
@@ -49,14 +53,13 @@ object ConfigurationActor {
 
     case class GetCompression()
 
-    implicit object GetCompression extends Mapping[ConfigurationActor, GetCompression, Compression]
+    implicit val GetCompressions = Mapping[ConfigurationActor, GetCompression, Compression]
 
-    implicit object WithValue extends Mapping[ConfigurationActor, WithValue, Config]
+    implicit val WithValues = Mapping[ConfigurationActor, WithValue, Config]
 
-    implicit object GetConfig extends Mapping[ConfigurationActor, GetConfig, Config]
+    implicit val GetConfigs = Mapping[ConfigurationActor, GetConfig, Config]
 
-    implicit object GetGlobalTimeout extends Mapping[ConfigurationActor, GetGlobalTimeout, Int]
-
+    implicit val GetGlobalTimeouts = Mapping[ConfigurationActor, GetGlobalTimeout, Int]
   }
 
 }
