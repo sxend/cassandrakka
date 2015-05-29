@@ -6,7 +6,7 @@ dependencies:
     - mkdir -p ~/.bintray && envsubst < .credentials > ~/.bintray/.credentials
 test:
   override:
-    - sbt +test
+    - sbt test
 deployment:
   staging:
     branch: master
@@ -15,4 +15,4 @@ deployment:
   release:
     branch: /release-.*/
     commands:
-      - sbt +publish
+      - sbt publish
