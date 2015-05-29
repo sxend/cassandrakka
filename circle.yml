@@ -11,7 +11,7 @@ deployment:
   staging:
     branch: master
     commands:
-      - sbt +package +doc
+      - sbt package doc
   release:
     branch: /release-.*/
     commands:
