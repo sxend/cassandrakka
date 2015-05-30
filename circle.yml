@@ -11,7 +11,7 @@ deployment:
   staging:
     branch: master
     commands:
-      - sbt "set version := \"0.0.1-$(git rev-parse HEAD)\"" package publish
+      - sbt "set version := \"0.0.1-${CIRCLE_SHA1}\"" package publish
 #  release:
 #    branch: /release-.*/
 #    commands:
