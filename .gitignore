@@ -8,3 +8,4 @@ logs/
 /bin/
 .idea/
 *.iml
+hs_err*.log
