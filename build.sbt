@@ -4,7 +4,7 @@ organization := "arimitsu.sf"
 
 name := "cassandrakka"
 
-version := "0.0.1"
+version := "0.0.1-SNAPSHOT"
 
 scalaVersion := "2.11.6"
 
