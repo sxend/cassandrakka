@@ -38,3 +38,9 @@ repository in bintray := {
 licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
 
 javacOptions ++= Seq("-source", "1.8")
+
+scalacOptions ++= Seq(
+  "-feature",
+  "-language:reflectiveCalls",
+  "-language:postfixOps"
+)
