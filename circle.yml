@@ -7,8 +7,6 @@ dependencies:
     - sbt clean "test:compile"
   cache_directories:
     - "~/.sbt"
-    - "~/.ivy2"
-    - "~/.m2"
 test:
   override:
     - sbt test
