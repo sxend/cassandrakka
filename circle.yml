@@ -11,8 +11,8 @@ deployment:
   staging:
     branch: master
     commands:
-      - sbt package doc
-  release:
-    branch: /release-.*/
-    commands:
-      - sbt publish
+      - sbt "set version := \"0.0.1-$(git rev-parse HEAD)\"" package publish
+#  release:
+#    branch: /release-.*/
+#    commands:
+#      - sbt publish
