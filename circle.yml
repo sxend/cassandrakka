@@ -4,6 +4,8 @@ machine:
 dependencies:
   override:
     - mkdir -p ~/.bintray && envsubst < .credentials > ~/.bintray/.credentials
+  cache_directories:
+    - "~/.sbt"
 test:
   override:
     - sbt test
