@@ -6,6 +6,8 @@ dependencies:
     - mkdir -p ~/.bintray && envsubst < .credentials > ~/.bintray/.credentials
   cache_directories:
     - "~/.sbt"
+    - "~/.ivy2"
+    - "~/.m2"
 test:
   override:
     - sbt test
