@@ -1,4 +1,4 @@
-import bintray.Keys._
+import bintray._
 
 organization := "arimitsu.sf"
 
