@@ -19,7 +19,11 @@ class ConfigurationActor(components: {
   var configuration: Config = components.defaultConfiguration.getOrElse(ConfigFactory.load.getConfig("arimitsu.sf.cassandrakka"))
   import ConfigurationActor.Protocols._
   def receive = {
-    case GetConfig => configuration
+    case message: GetConfig =>
+      import GetConfigs._
+      message.reply(Future {
+        configuration
+      }).typedPipeTo(sender())
     case message: GetCompression =>
       import GetCompressions._
       message.reply(Future {
