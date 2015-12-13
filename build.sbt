@@ -1,4 +1,3 @@
-import bintray._
 
 organization := "arimitsu.sf"
 
@@ -29,9 +28,7 @@ libraryDependencies ++= Seq(
 
 publishMavenStyle := false
 
-Seq(bintraySettings: _*)
-
-repository in bintray := {
+bintrayRepository := {
   if (version.value.matches("^[0-9]\\.[0-9]*\\.[0-9]*$")) "releases" else "snapshots"
 }
 
