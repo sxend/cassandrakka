@@ -6,7 +6,7 @@ name := "cassandrakka"
 
 version := "0.0.1-SNAPSHOT"
 
-scalaVersion := "2.11.6"
+scalaVersion := "2.11.7"
 
 resolvers += "Akka Snapshot Repository" at "http://repo.akka.io/snapshots/"
 
