@@ -1,4 +1,3 @@
-import bintray.Keys._
 
 organization := "arimitsu.sf"
 
@@ -6,7 +5,7 @@ name := "cassandrakka"
 
 version := "0.0.1-SNAPSHOT"
 
-scalaVersion := "2.11.6"
+scalaVersion := "2.11.7"
 
 resolvers += "Akka Snapshot Repository" at "http://repo.akka.io/snapshots/"
 
@@ -20,18 +19,16 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "com.typesafe.akka" %% "akka-stream-experimental" % "1.0-RC2",
-  "com.chuusai" %% "shapeless" % "2.2.0-RC6",
+  "com.typesafe.akka" %% "akka-stream-experimental" % "2.0-M2",
+  "com.chuusai" %% "shapeless" % "2.2.5",
   "net.jpountz.lz4" % "lz4" % "1.3.0",
-  "org.xerial.snappy" % "snappy-java" % "1.1.1.7",
+  "org.xerial.snappy" % "snappy-java" % "1.1.2",
   "org.scalatest" %% "scalatest" % "2.2.4" % "test"
 )
 
 publishMavenStyle := false
 
-Seq(bintraySettings: _*)
-
-repository in bintray := {
+bintrayRepository := {
   if (version.value.matches("^[0-9]\\.[0-9]*\\.[0-9]*$")) "releases" else "snapshots"
 }
 
